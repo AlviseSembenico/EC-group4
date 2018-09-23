@@ -1,0 +1,6 @@
+--- compile the file player0.java into player0.class
+javac -cp contest.jar player0.java                  
+--- create submission.jar file (if multiple files, just add them after last item)                     
+jar cmf MainClass.txt submission.jar player0.class       
+--- test your code (SphereEvaluation or BentCigar                          
+java -jar testrun.jar -submission=player0 -evaluation=SphereEvaluation -seed=1
