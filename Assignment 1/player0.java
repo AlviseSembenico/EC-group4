@@ -5,35 +5,32 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Properties;
 
- class Wrapper<T ,C > implements Comparable<Wrapper> {
-    public T t;
-    public C c;
-    public static boolean compare=true;
-    
-    @Override   
-    public int compareTo(Wrapper t) {
-        if(compare)
-            return (((Comparable)(this.t)).compareTo((T) t.t));
-        return (((Comparable)(this.c)).compareTo((C) t.c));
-    }
-    
-    public Wrapper(T t, C c){
-        this.t=t;
-        this.c=c;
-    }
-    
-}
 
 public class player0 implements ContestSubmission {
 
     Random rnd_;
     ContestEvaluation evaluation_;
     private int evaluations_limit_;
-    private int populationSize;
+    private int populationSize = 100;
+    LinkedList<double[]> population;
+    private int functionDimension=10;
+
+    public void popolationInitialization(){
+        Random rand = new Random();
+        for (int j = 0; j < populationSize; j++) {
+            double child[] = new double[functionDimension];
+            for(int i=0;i<functionDimension;i++)
+                child[i]=rand.nextDouble()*10-5;
+            population.add(child);
+        }
+    }
 
     public player0() {
         rnd_ = new Random();
+        popolationInitialization();
     }
+
+
 
     public void setSeed(long seed) {
         // Set seed of algortihms random process
@@ -76,18 +73,18 @@ public class player0 implements ContestSubmission {
         int evals = 0;
         // initFitness
         Wrapper[] fitness;
-        LinkedList<double[]> population = new LinkedList<>();
+        population = new LinkedList<>();
         for (int j = 0; j < populationSize; j++) {
             double child[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
             population.add(child);
         }
         fitness = computeFintness(population);
-
+        System.out.println(fitness);
         // calculate fitness
         while (evals < 1) {
             // Select parents
             // Apply crossover / mutation operators
-            //double child[] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+            // double child[] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
             // Check fitness of unknown fuction
             //double fitnesfs = (double) evaluation_.evaluate(child);        
             evals++;
