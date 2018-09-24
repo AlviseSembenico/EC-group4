@@ -17,6 +17,7 @@ public class player0 implements ContestSubmission {
 
     public void popolationInitialization(){
         Random rand = new Random();
+        population=new LinkedList<double[]>();
         for (int j = 0; j < populationSize; j++) {
             double child[] = new double[functionDimension];
             for(int i=0;i<functionDimension;i++)
@@ -79,7 +80,6 @@ public class player0 implements ContestSubmission {
             population.add(child);
         }
         fitness = computeFintness(population);
-        System.out.println(fitness);
         // calculate fitness
         while (evals < 1) {
             // Select parents
