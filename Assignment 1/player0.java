@@ -12,10 +12,10 @@ public class player0 implements ContestSubmission {
     ContestEvaluation evaluation_;
     private int evaluations_limit_;
     private int populationSize = 100;
-    LinkedList<double[]> population;
+    private LinkedList<double[]> population;
     private int functionDimension=10;
 
-    public void popolationInitialization(){
+    private void popolationInitialization(){
         Random rand = new Random();
         population=new LinkedList<double[]>();
         for (int j = 0; j < populationSize; j++) {
@@ -57,10 +57,10 @@ public class player0 implements ContestSubmission {
             // Do sth
         } else {
             // Do sth else
-        }
+        } 
     }
 
-    private Wrapper[] computeFintness(LinkedList<double[]> population) {
+    private Wrapper[] computeFitness() {
         Wrapper[] fitness = new Wrapper[populationSize];
         for (int i=0;i<population.size();i++) {
             double[] child=population.get(i);
@@ -79,7 +79,7 @@ public class player0 implements ContestSubmission {
             double child[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
             population.add(child);
         }
-        fitness = computeFintness(population);
+        fitness = computeFitness();
         // calculate fitness
         while (evals < 1) {
             // Select parents
