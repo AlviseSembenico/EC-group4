@@ -1,0 +1,1 @@
+{"population_size": 1, "iter_limit": 10000,"mutation_probability":1,"graph_frequency":1,"waiting_time":100,"learning_rate":0.5,"fitness_function":"pow"}
