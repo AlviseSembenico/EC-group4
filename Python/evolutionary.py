@@ -83,6 +83,17 @@ class Population:
         self.pop_eval=[(p,fitness(p)) for p in self.population]
         return self.pop_eval
     
+    def reproduce_distance(self,crossover,mutation,mut_probability,radius):
+        offspring=[]
+        for i,p1 in enumerate(self.population):
+            ntb=self.fixed_radius_neighbors_dumm(p1,radius)
+            p2=ntb[random.randint(0,len(ntb)-1)]
+            child=crossover(p1,p2)
+            if random.random()<mut_probability:
+                child=mutation(child)
+            offspring.append(child)
+        return offspring
+
     def reproduce_no_distance(self,crossover,mutation,mut_probability):
         offspring=[]
         for i,p1 in enumerate(self.population):
@@ -110,6 +121,8 @@ class Population:
         for ne in self.population:
             if self.proximity(chr,ne)<=dist and ne!=chr:
                 res.append(chr)
+        if len(res)==0:
+            res=[chr]
         return res
 
 class Cross_over:
@@ -122,6 +135,32 @@ class Cross_over:
                 res.append(a)
             else:
                 res.append(b)
+    
+
+    @staticmethod
+    def multiple_point_float(e1,e2,n=2):
+        def swap(a,b):
+            return (b,a)
+
+        child=[]
+        for x,y in zip(e1,e2):
+            s1=str(x)
+            s2=str(y)
+            if len(s1)>len(s2):
+                s1,s2=swap(s1,s2)
+            for a in range(0,len(s2)-len(s1)):
+                s1+="0"
+            res=""
+            point=random.randint(0,int(len(s1)/n))
+            p_counter=1
+            for i in range(0,len(s1)):
+                if i==point:
+                    s1,s2=swap(s1,s2)
+                    point=random.randint(int(point*len(s1)/n),int((point+1)*len(s1)/n))
+                    p_counter+=1
+                res+=s1[i]
+            child.append(float(res))
+        return child
     
     @staticmethod
     def multiple_point(e1,e2,n):
@@ -176,12 +215,12 @@ class Mutation:
                     res+=str(bin_to_int(new_nb))
                 else:
                     #randomize the new sign
-                    if random.random()>parameters["binary_mutation_probability"] or number=="-":    
+                    if random.random()>parameters["binary_mutation_probability"] or not is_number(number):    
                         res+=number
             try:
                 child.append(float(res))
             except ValueError:
-                print("Original number :{}, has been converted into {} reised an error".format(number,res))
+                print("Original number :{}, has been converted into {} reised an error".format(gene,res))
                 child.append(float(number))
         return child
 
@@ -241,8 +280,8 @@ class Compute_algorithm:
         while iteration<parameters["iter_limit"] and not cond:
             iteration+=1
             #reproduction
-            #offspring=population.reproduce_no_distance(partial(Cross_over.multiple_point,n=2),partial(Mutation.random_rep_float,min=-32,max=32),parameters["mutation_probability"])
-            offspring=[Mutation.binary_mutation(p) for p in population.population]
+            offspring=population.reproduce_distance(getattr(Cross_over,parameters["cross_over_function"]),getattr(Mutation,parameters["mutation_function"]),parameters["mutation_probability"],parameters["proximity_reproduction_radius"])
+            #offspring=[Mutation.binary_mutation(p) for p in population.population]
             population.merge_speciments(offspring)
             #fitness of the population
             population.assign_fitness(getattr(Fitness,parameters["fitness_function"]))
@@ -251,7 +290,7 @@ class Compute_algorithm:
 
             fittest.append(population.fittest_speciment()[1])
             avg_fitness.append(population.average_fit(getattr(Fitness,parameters["fitness_function"])))
-
+            print(fittest[-1])
             #graph part
             if iteration%parameters["graph_frequency"]==0:
                 #print of the point on the function

@@ -1,14 +1,14 @@
 {  
    "population_size":100,
-   "speciment_size":2,
-   "mutation_function":"",
-   "cross_over_function":"",
+   "speciment_size":5,
+   "mutation_function":"binary_mutation",
+   "mutation_probability":0.1,
+   "cross_over_function":"multiple_point_float",
    "iter_limit":10000,
-   "mutation_probability":1,
    "binary_mutation_probability":0.1,
-   "graph_frequency":1,
-   "waiting_time":100,
+   "graph_frequency":1.1,
+   "waiting_time":0,
    "learning_rate":0.5,
    "fitness_function":"Ackley",
-   "proximity_reproduction":1
+   "proximity_reproduction_radius":100
 }
