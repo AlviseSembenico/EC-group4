@@ -176,9 +176,13 @@ class Mutation:
                     res+=str(bin_to_int(new_nb))
                 else:
                     #randomize the new sign
-                    if random.random()>parameters["binary_mutation_probability"]:    
+                    if random.random()>parameters["binary_mutation_probability"] or number=="-":    
                         res+=number
-            child.append(float(res))
+            try:
+                child.append(float(res))
+            except ValueError:
+                print("Original number :{}, has been converted into {} reised an error".format(number,res))
+                child.append(float(number))
         return child
 
     @staticmethod
@@ -228,7 +232,7 @@ class Compute_algorithm:
     def run():
         #creation of the population
         population=Population()
-        population.initialize_random_continue(parameters["population_size"],1,-32,32)
+        population.initialize_random_continue(parameters["population_size"],parameters["speciment_size"],-32,32)
         iteration=0
         #conditio for satisfaction grade
         cond=False
@@ -247,19 +251,21 @@ class Compute_algorithm:
 
             fittest.append(population.fittest_speciment()[1])
             avg_fitness.append(population.average_fit(getattr(Fitness,parameters["fitness_function"])))
-            if iteration%parameters["graph_frequency"]==0:
 
+            #graph part
+            if iteration%parameters["graph_frequency"]==0:
                 #print of the point on the function
+                """ 
                 r_function=np.linspace(-32,32,parameters["population_size"])
                 points=np.array([getattr(Fitness,parameters["fitness_function"])(p) for p in population.population])
                 arr=[p[0] for p in population.population]
                 plot_scatter((np.array(arr),points))
-
-                #plotting the average fitness and the fittest element during the generations, uncomment the last line to see the graph
+                """
+                #plotting the average fitness and the fittest element during the generations
                 range=np.linspace(0,iteration,iteration)
                 graph1=np.array(fittest)
                 graph2=np.array(avg_fitness)
-                #plot_graph(range,graph1[-1],graph2[-1],(graph1,"fittest"))#(graph2,"average fitness"))
+                plot_graph(range,graph1[-1],graph2[-1],(graph1,"fittest"))
 
             if parameters["waiting_time"]!=0:
                 time.sleep(parameters["waiting_time"]/1000)

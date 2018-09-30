@@ -1,5 +1,8 @@
 {  
-   "population_size":1,
+   "population_size":100,
+   "speciment_size":2,
+   "mutation_function":"",
+   "cross_over_function":"",
    "iter_limit":10000,
    "mutation_probability":1,
    "binary_mutation_probability":0.1,
