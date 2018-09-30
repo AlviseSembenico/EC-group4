@@ -1,1 +1,11 @@
-{"population_size": 1, "iter_limit": 10000,"mutation_probability":1,"graph_frequency":1,"waiting_time":100,"learning_rate":0.5,"fitness_function":"pow"}
+{  
+   "population_size":1,
+   "iter_limit":10000,
+   "mutation_probability":1,
+   "binary_mutation_probability":0.1,
+   "graph_frequency":1,
+   "waiting_time":100,
+   "learning_rate":0.5,
+   "fitness_function":"Ackley",
+   "proximity_reproduction":1
+}

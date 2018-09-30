@@ -2,6 +2,7 @@ import json
 import random 
 import math
 import time
+import struct
 from functools import partial,reduce
 import numpy as np
 import pylab
@@ -18,6 +19,13 @@ Main parts of an EC algorithm:
 '''
 
 parameters={}
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 class Parameters_loader:
     parameters=None
@@ -91,6 +99,19 @@ class Population:
     def prune(self,function):
         self.population=function(self.pop_eval)
 
+    def proximity(self,chr1,chr2):
+        dist=0
+        for x,y in zip(chr1,chr2):
+            dist+=(x-y)**2
+        return math.sqrt(dist)
+
+    def fixed_radius_neighbors_dumm(self, chr, dist):
+        res=[]
+        for ne in self.population:
+            if self.proximity(chr,ne)<=dist and ne!=chr:
+                res.append(chr)
+        return res
+
 class Cross_over:
     @staticmethod
     def single_point(e1,e2):
@@ -127,6 +148,39 @@ class Cross_over:
        
 class Mutation:
     
+    @staticmethod
+    def binary_mutation(chr):
+        def float_to_bin(num):
+            return bin(struct.unpack('!I', struct.pack('!f', num))[0])[2:].zfill(32)
+
+        def bin_to_float(binary):
+            return float(int(binary.replace('0b', binary), 2))
+
+        def bin_to_int(binary):
+            return int(binary, 2)
+
+        child=[]
+        for gene in chr:
+            res=""
+            #take into account every digit
+            for number in str(gene):
+                #if it is not a digit it is a sign
+                if is_number(number):
+                    new_nb=""
+                    #convert the integer number in a bit string
+                    for bin in '{0:b}'.format(int(number)):
+                        value=int(bin)
+                        if random.random()<parameters["binary_mutation_probability"]:
+                            value=1-value
+                        new_nb+=str(value)
+                    res+=str(bin_to_int(new_nb))
+                else:
+                    #randomize the new sign
+                    if random.random()>parameters["binary_mutation_probability"]:    
+                        res+=number
+            child.append(float(res))
+        return child
+
     @staticmethod
     def random_rep_float(chr,min,max):
         res=[]
@@ -167,8 +221,7 @@ class Fitness:
             secondSum += math.cos(2.0*math.pi*c)
         n = float(len(chromosome))
         return -(-20.0*math.exp(-0.2*math.sqrt(firstSum/n)) - math.exp(secondSum/n) + 20 + math.e)
-
-        
+    
 class Compute_algorithm:
 
     @staticmethod
@@ -185,7 +238,7 @@ class Compute_algorithm:
             iteration+=1
             #reproduction
             #offspring=population.reproduce_no_distance(partial(Cross_over.multiple_point,n=2),partial(Mutation.random_rep_float,min=-32,max=32),parameters["mutation_probability"])
-            offspring=[Mutation.random_rep_float(p,-32,32) for p in population.population]
+            offspring=[Mutation.binary_mutation(p) for p in population.population]
             population.merge_speciments(offspring)
             #fitness of the population
             population.assign_fitness(getattr(Fitness,parameters["fitness_function"]))
@@ -202,14 +255,19 @@ class Compute_algorithm:
                 arr=[p[0] for p in population.population]
                 plot_scatter((np.array(arr),points))
 
+                #plotting the average fitness and the fittest element during the generations, uncomment the last line to see the graph
                 range=np.linspace(0,iteration,iteration)
                 graph1=np.array(fittest)
                 graph2=np.array(avg_fitness)
                 #plot_graph(range,graph1[-1],graph2[-1],(graph1,"fittest"))#(graph2,"average fitness"))
+
             if parameters["waiting_time"]!=0:
                 time.sleep(parameters["waiting_time"]/1000)
 
 def plot_Ackley(e):
+    '''
+    function equal to the other one, but used for plotting it
+    '''
     def f(c):
         """
         each component of the cromosome -32<=x<=32
@@ -227,7 +285,7 @@ def plot_scatter(*arg):
     pylab.ion()
     pylab.show()
     for range,p in arg:
-        pylab.scatter(range, p, s=10)
+        pylab.scatter(range, p, s=10,color='red')
     r=np.linspace(-32,32,1000)
     pylab.plot(r,np.array([getattr(Fitness,parameters["fitness_function"])([p]) for p in r]))
     pylab.draw()
