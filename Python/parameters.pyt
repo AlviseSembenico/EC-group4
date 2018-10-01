@@ -1,6 +1,6 @@
 {  
    "population_size":100,
-   "speciment_size":5,
+   "speciment_size":200,
    "mutation_function":"binary_mutation",
    "mutation_probability":0.1,
    "cross_over_function":"multiple_point_float",
