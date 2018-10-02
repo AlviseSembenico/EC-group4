@@ -30,12 +30,12 @@ public class player0 implements ContestSubmission {
     }
 
     private void mutateChild(double premuChild[]) {
-    	for(int i=0; i < premuChild.length; i++) {
-    		double coinFlip = rnd_.nextDouble();
-    		if(coinFlip > 0.5){
-    			premuChild[i] = (rnd_.nextDouble() * 10) - 5;
-    		}
-    	}
+        for(int i = 0; i < premuChild.length; i++) {
+            double coinFlip = rnd_.nextDouble();
+            if(coinFlip > 0.5){
+                premuChild[i] = (rnd_.nextDouble() * 10) - 5;
+            }
+        }
     }
 
     public void setSeed(long seed) {
