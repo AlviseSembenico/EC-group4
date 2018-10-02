@@ -16,11 +16,10 @@ public class player0 implements ContestSubmission {
     private int functionDimension=10;
 
     public void popolationInitialization(){
-        Random rand = new Random();
         for (int j = 0; j < populationSize; j++) {
             double child[] = new double[functionDimension];
-            for(int i=0;i<functionDimension;i++)
-                child[i]=rand.nextDouble()*10-5;
+            for(int i = 0;i < functionDimension; i++)
+                child[i] = rnd_.nextDouble() * 10 - 5;
             population.add(child);
         }
     }
@@ -31,12 +30,10 @@ public class player0 implements ContestSubmission {
     }
 
     private void mutateChild(double premuChild[]) {
-    	
-    	for(int i=0; i<premuChild.length;i++) {
-    		Random mutRand = new Random();
-    		double coinFlip = mutRand.nextDouble()
-    		if(mutRand > 0.5){
-    			premuChild[i] = (mutRand.nextDouble()*10)-5;
+    	for(int i=0; i < premuChild.length; i++) {
+    		double coinFlip = rnd_.nextDouble();
+    		if(coinFlip > 0.5){
+    			premuChild[i] = (rnd_.nextDouble() * 10) - 5;
     		}
     	}
     }
@@ -70,9 +67,9 @@ public class player0 implements ContestSubmission {
 
     private Wrapper[] computeFintness(LinkedList<double[]> population) {
         Wrapper[] fitness = new Wrapper[populationSize];
-        for (int i=0;i<population.size();i++) {
-            double[] child=population.get(i);
-            fitness[i]=new Wrapper((double) evaluation_.evaluate(child),child); 
+        for (int i = 0; i < population.size(); i++) {
+            double[] child = population.get(i);
+            fitness[i] = new Wrapper((double) evaluation_.evaluate(child), child); 
         }
         return fitness;
     }
