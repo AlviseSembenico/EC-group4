@@ -4,21 +4,24 @@ import java.util.LinkedList;
 
 import java.util.Random;
 import java.util.Properties;
+import java.util.Arrays;
 
 
 public class player0 implements ContestSubmission {
 
     Random rnd_;
-    ContestEvaluation evaluation_;
+    ContestEvaluation evaluation;
     private int evaluations_limit_;
-    private int populationSize = 100;
-    LinkedList<double[]> population;
-    private int functionDimension=10;
+    // Population size
+    private final int INITIAL_P_SIZE = 20;
+    private final int F_DIMENSIONS = 10;
+    private LinkedList<double[]> population;
 
     public void populationInitialization(){
-        for (int j = 0; j < populationSize; j++) {
-            double child[] = new double[functionDimension];
-            for(int i = 0;i < functionDimension; i++)
+        population = new LinkedList<double[]>();
+        for (int j = 0; j < INITIAL_P_SIZE; j++) {
+            double child[] = new double[F_DIMENSIONS];
+            for(int i = 0;i < F_DIMENSIONS; i++)
                 child[i] = rnd_.nextDouble() * 10 - 5;
             population.add(child);
         }
@@ -45,7 +48,7 @@ public class player0 implements ContestSubmission {
 
     public void setEvaluation(ContestEvaluation evaluation) {
         // Set evaluation problem used in the run
-        evaluation_ = evaluation;
+        this.evaluation = evaluation;
 
         // Get evaluation properties
         Properties props = evaluation.getProperties();
@@ -65,39 +68,54 @@ public class player0 implements ContestSubmission {
         }
     }
 
-    private Wrapper[] computeFitness(LinkedList<double[]> population) {
-        Wrapper[] fitness = new Wrapper[populationSize];
+    private double[] computeFitness(LinkedList<double[]> population) {
+        double[] fitness = new double[population.size()];
         for (int i = 0; i < population.size(); i++) {
             double[] child = population.get(i);
-            fitness[i] = new Wrapper((double) evaluation_.evaluate(child), child); 
+            fitness[i] = 1.0;
+            fitness[i] = (double) evaluation.evaluate(child);
         }
         return fitness;
+    }
+
+    private double sumFitness(double[] fitness) {
+        double total = 0.0;
+        for (double childFitness : fitness) {
+            total += childFitness;
+        }
+        return total;
     }
 
     public void run() {
         // Run your algorithm here
         int evals = 0;
         // initFitness
-        Wrapper[] fitness;
-        population = new LinkedList<>();
-        for (int j = 0; j < populationSize; j++) {
-            double child[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-            population.add(child);
-        }
-        fitness = computeFitness(population);
+        double[] fitness = computeFitness(population);
         System.out.println(fitness);
         // calculate fitness
-        while (evals < 1) {
+        while (evals++ < 100) {
+            double totalFitness = sumFitness(fitness);
             // Select parents
+            double[] parent = population.get(evals % population.size());
+            double[] bParent = parent.clone();
+
             // Apply crossover / mutation operators
-            // double child[] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+            mutateChild(parent);
+
             // Check fitness of unknown fuction
-            //double fitnesfs = (double) evaluation_.evaluate(child);        
-            evals++;
+            double[] newFitness = computeFitness(population);
+            double newTotalFitness = sumFitness(newFitness);
 
-            //System.out.println(fitness);
-            // Select survivors
+            System.out.println("evaluation: " + evals + ". New fitness: " + newTotalFitness);
+            if (newTotalFitness < totalFitness) {
+                population.set(evals % population.size(), bParent);
+
+                newFitness = computeFitness(population);
+                newTotalFitness = sumFitness(newFitness);
+
+                System.out.println("returned parent to old value because new mutation lowered fitness. New fitness: " + newTotalFitness);
+            }
+            fitness = newFitness;
         }
-
     }
 }
