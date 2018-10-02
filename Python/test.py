@@ -13,11 +13,7 @@ for c in range(0,10):
     res+=c 
 
 class Tree:
-    def __init__(self,type,father=None,operation=None,name=None,n_param=None,value=None,init=None,*args):
-        if father is not None:
-            self.father=father
-        else:
-            self.is_root=True
+    def __init__(self,type=None,operation=None,name=None,n_param=None,value=None,init=None,*args):
         if init is not None:
             init()
         if n_param is not None:
@@ -53,7 +49,10 @@ class Tree:
                 res/=c.compute(scope)
             return res
 
-    def compute(self,scope):
+    def compute(self,scope={}):
+        if hasattr(self,"prec"):
+            self.prec.compute(scope)
+
         if self.operation is None:
             for c in self.children:
                 c.compute(scope)
@@ -63,23 +62,17 @@ class Tree:
                 else: 
                     return self.value
 
-        if self.operation=="function":
-            if self.n_param<len(self.children):
-                self.children[-1].compute(scope)
-            list_param=[c.compute(scope) for c in self.children[:-1]]
-            self.value(*list_param)
-            
-                
+        elif self.operation=="function":
+            list_param=[c.compute(scope) for c in self.children]
+            self.value(*list_param)      
 
-        if self.operation in ["+","-","/","*"]:
+        elif self.operation in ["+","-","/","*"]:
             return self.compute_arithmetic(scope)
         
-        if self.operation=="assignment":
+        elif self.operation=="assignment":
             scope[self.name]=self.children[0].compute(scope)
 
-
-        if self.operation=="for":
-            self.children[2].compute(scope)
+        elif self.operation=="for":
             if self.children[0].type==list:
                 raise Exception('Type mismatch')
             range=self.children[0].compute(scope)
@@ -94,11 +87,23 @@ class Tree:
                 self.children[1].compute(scope)
                 first_time=False
 
+        elif self.operation=="if":
+            #operand 1 condition
+            if self.children[0].compute(scope):
+                #operand 2 for condition satisfied
+                self.children[1].compute(scope)
+            else:
+                #operand 3 for false condition
+                self.children[2].compute(scope)
+
 
 
 
     def add_child(self,child,order):
         child.father=self
+        if order==0:
+            self.prec=child
+            return
         if len(self.children)<order:
             for a in range(0,order-len(self.children)):
                 self.children.append(None)
@@ -113,22 +118,38 @@ t.add_child(Tree(None,t,value=partial(assignment,"res",0)) ,3)
 t.add_child(Tree(range,t,value=lambda _:[1,2,3]),1)
 t.add_child(Tree(None,t,value=lambda x:print(x["range"])),2)
 '''
+
+'''
+POSSIBLE OPERATIONS:
+    -function: 1 or more children(Parameters)   Tree(operation="function",n_param=1,value=print)    
+    -assignment: 1 children(value)              Tree(value=partial(assignment,"res",0))
+    -math operations                            Tree(int,operation="+")
+    -for: 2 children(1: range, 2: operations)   Tree(t,operation="for")
+    -if
+    -while
+
+
+IF NONE:
+    -value
+    -
+'''
 def assignment(name,value,x):
     x[name]=value
 
 
-t=Tree(None,operation="function",n_param=1,value=print)
-t.add_child(Tree(int,t,value=lambda x:x["res"]),1)
+t=Tree(operation="function",n_param=1,value=print)
+t.add_child(Tree(int,value=lambda x:x["res"]),1)
 nfor=Tree(t,operation="for")
-t.add_child(nfor,2)
-nfor.add_child(Tree(range,t,value=lambda _:[1,2,3]),1)
-nfor.add_child(Tree(None,nfor,value=partial(assignment,"res",0)),3)
-assign=Tree(nfor,nfor,operation="assignment",name="res")
+t.add_child(nfor,0)
+
+assign=Tree(operation="assignment",name="res")
+nfor.add_child(Tree(range,value=[1,2,3]),1)
+nfor.add_child(Tree(value=partial(assignment,"res",0)),0)
+nfor.add_child(assign,2)
 
 sumop=Tree(int,operation="+")
 sumop.add_child(Tree(int,value=lambda x:x["res"]),1)
 sumop.add_child(Tree(int,value=lambda x:x["range"][-1]),2)
-nfor.add_child(assign,2)
 assign.add_child(sumop,1)
 
-t.compute({})
+t.compute()
