@@ -15,7 +15,7 @@ public class player0 implements ContestSubmission {
     LinkedList<double[]> population;
     private int functionDimension=10;
 
-    public void popolationInitialization(){
+    public void populationInitialization(){
         for (int j = 0; j < populationSize; j++) {
             double child[] = new double[functionDimension];
             for(int i = 0;i < functionDimension; i++)
@@ -26,7 +26,7 @@ public class player0 implements ContestSubmission {
 
     public player0() {
         rnd_ = new Random();
-        popolationInitialization();
+        populationInitialization();
     }
 
     private void mutateChild(double premuChild[]) {
@@ -65,7 +65,7 @@ public class player0 implements ContestSubmission {
         }
     }
 
-    private Wrapper[] computeFintness(LinkedList<double[]> population) {
+    private Wrapper[] computeFitness(LinkedList<double[]> population) {
         Wrapper[] fitness = new Wrapper[populationSize];
         for (int i = 0; i < population.size(); i++) {
             double[] child = population.get(i);
@@ -84,7 +84,7 @@ public class player0 implements ContestSubmission {
             double child[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
             population.add(child);
         }
-        fitness = computeFintness(population);
+        fitness = computeFitness(population);
         System.out.println(fitness);
         // calculate fitness
         while (evals < 1) {
