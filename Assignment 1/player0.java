@@ -41,6 +41,13 @@ public class player0 implements ContestSubmission {
         }
     }
 
+    /**
+    * Crossover with crossover point in the middle
+    */
+    private double[] crossOver(double[] a, double[] b) {
+        return new double[]{a[0], a[1], a[2], a[3], b[4], b[5], b[6], b[7]};
+    }
+
     public void setSeed(long seed) {
         // Set seed of algortihms random process
         rnd_.setSeed(seed);
@@ -93,7 +100,7 @@ public class player0 implements ContestSubmission {
         double[] fitness = computeFitness(population);
         System.out.println(fitness);
         // calculate fitness
-        while (evals++ < 100) {
+        while (evals++ < 1000) {
             double totalFitness = sumFitness(fitness);
             // Select parents
             double[] parent = population.get(evals % population.size());
