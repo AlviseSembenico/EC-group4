@@ -85,12 +85,34 @@ public class player0 implements ContestSubmission {
         return fitness;
     }
 
+    /*
+    Using Wrapper
+    
+    private Wrapper[] computeFitness(LinkedList<double[]> population) {
+        Wrapper[] fitness = new Wrapper[population.size()];
+        int j=0;
+        population.forEach(child -> {
+            fitness[j]=new Wrapper(child,(double) evaluation.evaluate(child));
+            j++;
+        });
+        return fitness;
+    }
+    */
+
     private double sumFitness(double[] fitness) {
         double total = 0.0;
         for (double childFitness : fitness) {
             total += childFitness;
         }
         return total;
+    }
+
+    //using Wrapper class
+    private double sumFitness(Wrapper[] popEval){
+        double totFitness=0.0;
+        for(Wrapper child:popEval)
+            totFitness+=(double)child.c;
+        return totFitness;
     }
 
     public void run() {
