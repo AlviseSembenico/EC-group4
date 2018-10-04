@@ -1,5 +1,4 @@
-import org.vu.contest.ContestSubmission;
-import org.vu.contest.ContestEvaluation;
+
 import java.util.LinkedList;
 
 import java.util.Random;
@@ -9,7 +8,7 @@ import java.util.Comparator;
 import java.util.Collections;
 
 
-public class player4 implements ContestSubmission {
+public class Debug {
 
     Random rnd_;
     ContestEvaluation evaluation;
@@ -23,12 +22,9 @@ public class player4 implements ContestSubmission {
     private double mutationRate=0.1;
     private double mutationVariability = 0.5;
     private int hardElitismN = 1;
-    private int tot=0;
 
+    
 
-    /**
-     * Initialize the popoulation randomly
-     */
     private void populationInitialization() {
         population = new LinkedList<double[]>();
         for (int j = 0; j < populationSize; j++) {
@@ -44,8 +40,6 @@ public class player4 implements ContestSubmission {
         populationInitialization();
     }
 
-    
-    //to write better which type of mutation it is
     private void mutateChild(double premuChild[]) {
         for (int i = 0; i < premuChild.length; i++) {
             double coinFlip = rnd_.nextDouble();
@@ -55,7 +49,6 @@ public class player4 implements ContestSubmission {
         }
     }
 
-    //same as before
     private void mutateChild2(double premuChild[]){
         // Mutation that will move shortly in the 10D space (Low variation)
         double p1 = 0.8 * mutationVariability + 0.1; //p1 from 0.1 to 0.9
@@ -77,12 +70,8 @@ public class player4 implements ContestSubmission {
         }
     }
 
-    /**
-     * 
-     * @param wrappers larray of Wrapper containing the population
-     * @return Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
-     */
     public Wrapper[] hardElitism(Wrapper[] wrappers) {
+        // Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
         Arrays.sort(wrappers);
         Wrapper[] eliteIndiv = new Wrapper[hardElitismN];
         for (int i = 0; i < hardElitismN; i++) {
@@ -124,21 +113,20 @@ public class player4 implements ContestSubmission {
             // Do sth else
         }
     }
-    
-
-    /**
-     * 
-     * @return array of wrapper, each of them containing a child and its fitness
+    /*
+     * private double[] computeFitness(LinkedList<double[]> population) { double[]
+     * fitness = new double[population.size()]; for (int i = 0; i <
+     * population.size(); i++) { double[] child = population.get(i); fitness[i] =
+     * 1.0; fitness[i] = (double) evaluation.evaluate(child); } return fitness; }
      */
+
     private Wrapper[] computeFitness() {
         Wrapper[] fitness = new Wrapper[population.size()];
         int i = 0;
         for(double[] child:population){
             fitness[i++] = new Wrapper(child, (double) evaluation.evaluate(child),false);
-            tot++;
-            }
-        
-        
+        }
+        System.out.println("figa");
         return fitness;
     }
 
@@ -150,12 +138,6 @@ public class player4 implements ContestSubmission {
         return total;
     }
 
-    /**
-     * 
-     * @param position order of arrival of the parent within the tournament
-     * @param u the dimension of the tournament
-     * @return the probability for the parent to be chosen
-     */
     private double linearRanking(int position,int u) {
         return ((2 - selectivePressure) / u) + ((2 * position * (selectivePressure - 1)) / (u * (u - 1)));
     }
@@ -168,13 +150,6 @@ public class player4 implements ContestSubmission {
         return totFitness;
     }
 
-    /**
-     * 
-     * @param n # of random number generated
-     * @param min min for every number
-     * @param max max for every number
-     * @return  n integer random number between min and max
-     */
     private int[] random(int n, int min, int max) {
         int[] res = new int[n];
         Random random = new Random();
@@ -188,13 +163,12 @@ public class player4 implements ContestSubmission {
     public void run() {
         // Run your algorithm here
         int evals = 0;
-        while (evals++*populationSize < 10000) {
+        while (evals++ < 1000) {
             // calculate fitness
             Wrapper[] popFitness = computeFitness();
             double totalFitness = sumFitness(popFitness);
+
             
-            System.out.println(tot);
-            System.out.println(population.size());
             for (int counter=0;counter<populationSize;counter++) {
                 //select randomly the index of 5 parents
                 int[] parents = random(tournamentSize, 0, populationSize-1);
@@ -235,14 +209,33 @@ public class player4 implements ContestSubmission {
                 //add the new child to the population
                 population.add(newChild);
             }
+
             //population selection, half of the individuals must be killed
-            //inefficient way, just to understand if everything works properly
-            popFitness = computeFitness();
-            Arrays.sort(popFitness);
-            population=new LinkedList<>();
-            for(int i=0;i<popFitness.length/2;i++)
-                population.add((double [])popFitness[i].t);
+
             //compute the fitness mean
+
+
+
+
+            // Apply crossover / mutation operators
+            /*mutateChild(parent);
+
+            // Check fitness of unknown fuction
+            double[] newFitness = computeFitness();
+            double newTotalFitness = sumFitness(newFitness);
+
+            System.out.println("evaluation: " + evals + ". New fitness: " + newTotalFitness);
+            if (newTotalFitness < totalFitness) {
+                population.set(evals % population.size(), bParent);
+
+                newFitness = computeFitness();
+                newTotalFitness = sumFitness(newFitness);
+
+                System.out.println("returned parent to old value because new mutation lowered fitness. New fitness: "
+                        + newTotalFitness);
+            }
+            fitness = newFitness;
+            */
         }
     }
 }
