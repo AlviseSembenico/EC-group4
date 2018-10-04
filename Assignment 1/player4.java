@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Properties;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Collections;
+
 
 public class player4 implements ContestSubmission {
 
@@ -55,10 +58,9 @@ public class player4 implements ContestSubmission {
             coinFlip = rnd_.nextDouble();
             if (coinFlip < p1) {
                 double maxDistance = 0.0;
-                if movePositive {
+                if (movePositive) {
                     maxDistance = 5.0 - premuChild[i];
-                }
-            else{
+                } else{
                     maxDistance = -Math.abs(-5.0 - premuChild[i]);
                 }
 
@@ -69,14 +71,9 @@ public class player4 implements ContestSubmission {
 
     public Wrapper[] hardElitism(Wrapper[] wrappers) {
         // Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
-        Collections.sort(wrappers, new Comparator<Class1>() {
-            public int compare(Class1 c1, Class1 c2) {
-                if (c1.c > c2.c) return -1;
-                if (c1.c < c2.c) return 1;
-                return 0;
-            }});
+        Collections.sort(wrappers);
         Wrapper[] eliteIndiv = new Wrapper[hardElitismN];
-        for (i = 0; i < hardElitismN; i++) {
+        for (int i = 0; i < hardElitismN; i++) {
             eliteIndiv[i] = wrappers[i];
         }
         return eliteIndiv;
