@@ -43,6 +43,43 @@ public class player4 implements ContestSubmission {
         }
     }
 
+    private void mutateChild2(double premuChild[]){
+        // Mutation that will move shortly in the 10D space (Low variation)
+        double p1 = 0.8 * mutationVariability + 0.1; //p1 from 0.1 to 0.9
+        // Move some random values a random % distance towards one of the sides (+ or -)
+        for (int i = 0; i < premuChild.length; i++) {
+            double coinFlip = rnd_.nextDouble();
+            boolean movePositive = coinFlip > 0.5;
+            coinFlip = rnd_.nextDouble();
+            if (coinFlip < p1) {
+                double maxDistance = 0.0;
+                if movePositive {
+                    maxDistance = 5.0 - premuChild[i];
+                }
+            else{
+                    maxDistance = -Math.abs(-5.0 - premuChild[i]);
+                }
+
+                premuChild[i] = premuChild[i] + (rnd_.nextDouble() * maxDistance);
+            }
+        }
+    }
+
+    public Wrapper[] hardElitism(Wrapper[] wrappers) {
+        // Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
+        Collections.sort(wrappers, new Comparator<Class1>() {
+            public int compare(Class1 c1, Class1 c2) {
+                if (c1.c > c2.c) return -1;
+                if (c1.c < c2.c) return 1;
+                return 0;
+            }});
+        Wrapper[] eliteIndiv = new Wrapper[hardElitismN];
+        for (i = 0; i < hardElitismN; i++) {
+            eliteIndiv[i] = wrappers[i];
+        }
+        return eliteIndiv;
+    }
+
     /**
      * Crossover with crossover point in the middle
      */
