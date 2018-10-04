@@ -83,7 +83,7 @@ public class player4 implements ContestSubmission {
      * Crossover with crossover point in the middle
      */
     private double[] crossover(double[] a, double[] b) {
-        return new double[] { a[0], a[1], a[2], a[3], b[4], b[5], b[6], b[7] };
+        return new double[] { a[0], a[1], a[2], a[3], a[4], b[5], b[6], b[7], b[8], b[9]};
     }
 
     public void setSeed(long seed) {
