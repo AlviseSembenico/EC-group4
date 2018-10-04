@@ -136,8 +136,7 @@ public class player4 implements ContestSubmission {
         return total;
     }
 
-    private double linearRanking(int position) {
-        int u = population.size();
+    private double linearRanking(int position,int u) {
         return ((2 - selectivePressure) / u) + ((2 * position * (selectivePressure - 1)) / (u * (u - 1)));
     }
 
@@ -150,6 +149,7 @@ public class player4 implements ContestSubmission {
     }
 
     private int[] random(int n, int min, int max) {
+        System.out.println("max value: "+max);
         int[] res = new int[n];
         Random random = new Random();
         int[] i = new int[]{0};
@@ -170,40 +170,46 @@ public class player4 implements ContestSubmission {
             
             for (int counter=0;counter<populationSize;counter++) {
                 //select randomly the index of 5 parents
-                int[] parents = random(tournamentSize, 0, population.size());
+                int[] parents = random(tournamentSize, 0, populationSize-1);
                 //calculate the probability for every parent to be chosen, the sum is 1.0
                 double[] probability = new double[tournamentSize];
-                for (int i : parents) {
-                    probability[i] = linearRanking(i);
+                for (int i=0;i<tournamentSize;i++) {
+                    probability[i] = linearRanking(i,tournamentSize);
                 }
                 Wrapper p1=null, p2=null;
-                double amount = 0.0;
+                double amount = probability[0];
                 //randomize a number between 0 and 1
-                double extract = Math.random();
-                int i = 0;
+                double extract = Math.random(); 
+            
+                System.out.println(Arrays.toString(probability));
+                System.out.println(Arrays.toString(parents));
+                System.out.println(popFitness.length);
+                System.out.println(extract);
+                
                 //select the parents according to the random number and the probability of the parents
-                for (double p : probability)
-                    if (extract < amount) {
-                        p1 = (Wrapper)popFitness[parents[i]].t;
+                for(int i=1;i<=probability.length;i++)
+                    if (extract <= amount) {
+                        p1 = popFitness[parents[i-1]];
                         break;
                     } else {
-                        amount += p;
-                        i++;
+                        amount += probability[i];
                     }
                 //repeat the procedure for the second parent
                 extract = Math.random();
-                i = 0;
-                for (double p : probability)
-                    if (extract < amount) {
-                        p2 = (Wrapper)popFitness[parents[i]].t;
+                
+                System.out.println(extract);
+                amount = probability[0];
+                for(int i=1;i<=probability.length;i++)
+                    if (extract <= amount) {
+                        p2 = popFitness[parents[i-1]];
                         break;
                     } else {
-                        amount += p;
-                        i++;
+                        amount += probability[i];
                     }
-
+                System.out.println("parent 1 "+p1);
+                System.out.println("parent 2 "+p2);
                 //generation of the new child from the parents
-                double[] newChild=crossover((double[])p1.t,(double[])p1.t);
+                double[] newChild=crossover((double[])p1.t,(double[])p2.t);
                 //apply the mutation if it necessary
                 if(Math.random()<mutationRate)
                     mutateChild(newChild);

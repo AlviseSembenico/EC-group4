@@ -1,6 +1,6 @@
 
 
-public class Wrapper<T ,C > implements Comparable<Wrapper> {
+public class Wrapper<T,C> implements Comparable<Wrapper> {
     public T t;
     public C c;
     public static boolean compare=true;
