@@ -18,6 +18,8 @@ public class player4 implements ContestSubmission {
     private double selectivePressure = 1.5;
     private int tournamentSize = 5;
     private double mutationRate=0.1;
+    private double mutationVariability = 0.5;
+    private int hardElitismN = 1;
 
     private void populationInitialization() {
         population = new LinkedList<double[]>();
