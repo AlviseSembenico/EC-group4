@@ -71,7 +71,7 @@ public class player4 implements ContestSubmission {
 
     public Wrapper[] hardElitism(Wrapper[] wrappers) {
         // Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
-        Collections.sort(wrappers);
+        Arrays.sort(wrappers);
         Wrapper[] eliteIndiv = new Wrapper[hardElitismN];
         for (int i = 0; i < hardElitismN; i++) {
             eliteIndiv[i] = wrappers[i];
@@ -121,9 +121,9 @@ public class player4 implements ContestSubmission {
 
     private Wrapper[] computeFitness() {
         Wrapper[] fitness = new Wrapper[population.size()];
-        int j = 0;
+        int[] j = new int[]{0};
         population.forEach(child -> {
-            fitness[j++] = new Wrapper(child, (double) evaluation.evaluate(child));
+            fitness[j[0]++] = new Wrapper(child, (double) evaluation.evaluate(child),false);
         });
         return fitness;
     }
@@ -152,9 +152,9 @@ public class player4 implements ContestSubmission {
     private int[] random(int n, int min, int max) {
         int[] res = new int[n];
         Random random = new Random();
-        int i = 0;
+        int[] i = new int[]{0};
         random.ints(n, min, max).forEach(rn -> {
-            res[i++] = rn;
+            res[i[0]++] = rn;
         });
         return res;
     }
@@ -176,7 +176,7 @@ public class player4 implements ContestSubmission {
                 for (int i : parents) {
                     probability[i] = linearRanking(i);
                 }
-                Wrapper p1, p2;
+                Wrapper p1=null, p2=null;
                 double amount = 0.0;
                 //randomize a number between 0 and 1
                 double extract = Math.random();

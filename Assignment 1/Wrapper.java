@@ -16,5 +16,11 @@ public class Wrapper<T ,C > implements Comparable<Wrapper> {
         this.t=t;
         this.c=c;
     }
+
+    public Wrapper(T t, C c,boolean compare){
+        this.t=t;
+        this.c=c;
+        this.compare=false;
+    }
     
 }
