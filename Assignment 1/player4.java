@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.Properties;
 import java.util.Arrays;
 
-public class player0 implements ContestSubmission {
+public class player4 implements ContestSubmission {
 
     Random rnd_;
     ContestEvaluation evaluation;
@@ -29,7 +29,7 @@ public class player0 implements ContestSubmission {
         }
     }
 
-    public player0() {
+    public player4() {
         rnd_ = new Random();
         populationInitialization();
     }
