@@ -258,7 +258,7 @@ public class player4 implements ContestSubmission {
             //population selection, half of the individuals must be killed
             //inefficient way, just to understand if everything works properly
             Collections.sort(population);
-            population = (LinkedList) population.subList(0, population.size()/2);
+            population = new LinkedList(population.subList(0, population.size()/2));
         }
     }
 }
