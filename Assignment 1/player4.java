@@ -70,41 +70,36 @@ public class player4 implements ContestSubmission {
      * Crossover with crossover point in the middle
      */
 
-    private Individual crossover(List<Individual> toBreed, int numPoints){
+    private Individual crossover(List<Individual> parents, int numPoints){
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         List<Integer> crossovers = new LinkedList<Integer>();
-        int randomparent;
-        int randomcrossover;
+        int randomCrossover;
         for (int i = 0; i < numPoints; i++) {
-            randomcrossover = rnd_.nextInt(10 + 1);
-            if(!crossovers.contains(randomcrossover))
-                crossovers.add(randomcrossover);
+            randomCrossover = rnd_.nextInt(F_DIMENSIONS - 1);
+            if(!crossovers.contains(randomCrossover))
+                crossovers.add(randomCrossover);
             else{
                 i--;
             }
         }
 
         Collections.sort(crossovers);
-        int prevPoint = 0;
-        int currentPoint;
-        int z = 0;
-        Individual newGuy = new Individual();
         double[] newChild = new double[10];
+        Iterator p=parents.iterator(),c=crossovers.iterator();
+        Individual currentParent=(Individual)p.next();
+        int point=(Integer)c.next();
 
-        for (int k = toBreed.size() + 1; k > 0; k--) {
-            randomparent = rnd_.nextInt(toBreed.size() + 1 - 0);
-            currentPoint =  crossovers.get(z);
-            for (int j = prevPoint; j < currentPoint; j++) {
-                newChild[j] = toBreed.get(k).points[j];
+        for(int i=0;i<F_DIMENSIONS;i++){
+            if(i==point){
+                if(!p.hasNext())
+                    p=parents.iterator();
+                currentParent=(Individual)p.next();
+                
+                if(!c.hasNext())
+                    point=-1;
             }
-            prevPoint = currentPoint;
-            z++;
-        }
-        if(crossovers.get(crossovers.size()-1) < 10){
-            for (int j = prevPoint; j < 10; j++) {
-                newChild[j] = toBreed.get(0).points[j];
-            }
+            newChild[i]=currentParent.points[i];
         }
         return new Individual(newChild);
     }
@@ -226,17 +221,6 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
-    private void runFitness(int start,int end){
-        Iterator child=population.iterator();
-        for(int i=0;i<start;i++)
-            child.next();
-
-        for(;start<=end;start++){
-            Individual ind=child.next();
-            ind.getFitness();
-        }
-    }
-
 
     public void run() {
         // Run your algorithm here
@@ -249,7 +233,7 @@ public class player4 implements ContestSubmission {
                     child.mutate(mutationVariability);
                 population.add(child);
             }
-            population=tournament(tournamentSize, 1,100);
+            population=(LinkedList<Individual>)tournament(tournamentSize, 1,100);
         }
 
     }
