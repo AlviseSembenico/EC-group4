@@ -53,7 +53,7 @@ public class player4 implements ContestSubmission {
             }
         }
 
-        return premuChild[]
+        return premuChild[0];
     }
 
     //same as before
@@ -96,16 +96,16 @@ public class player4 implements ContestSubmission {
      * Crossover with crossover point in the middle
      */
 
-    private double Crossover(List<Individual[]> toBreed, int numPoints){
+    private double[] crossover(List<Individual> toBreed, int numPoints){
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         Random random = new Random();
-        List<Integer> crossovers = new ArrayList<Integer>();
+        List<Integer> crossovers = new LinkedList<Integer>();
         int randomparent;
         int randomcrossover;
         for (int i = 0; i < numPoints; i++) {
             randomcrossover = random.nextInt(10 + 1);
-            if(!crossovers.Contains(randomcrossover))
+            if(!crossovers.contains(randomcrossover))
                 crossovers.add(randomcrossover);
             else{
                 i--;
@@ -116,21 +116,21 @@ public class player4 implements ContestSubmission {
         int prevPoint = 0;
         int currentPoint;
         int z = 0;
-        Individual newguy = new Individual();
+        Individual newGuy = new Individual();
         double[] newChild = new double[10];
 
         for (int k = toBreed.size() + 1; k > 0; k--) {
             randomparent = random.nextInt(toBreed.size() + 1 - 0);
-            currentPoint =  crossovers[z]
+            currentPoint =  crossovers.get(z);
             for (int j = prevPoint; j < currentPoint; j++) {
-                newChild[j] = toBreed[k].points[j];
+                newChild[j] = toBreed.get(k).points[j];
             }
             prevPoint = currentPoint;
             z++;
         }
-        if(crossovers[-1] < 10){
+        if(crossovers.get(crossovers.size()-1) < 10){
             for (int j = prevPoint; j < 10; j++) {
-                newChild[j] = toBreed[0].points[j];
+                newChild[j] = toBreed.get(0).points[j];
             }
         }
         return newChild;
@@ -138,7 +138,7 @@ public class player4 implements ContestSubmission {
 
     private Individual makeChild(){
 
-        return newChild;
+        return null;
     }
 
 //    private double[] crossover(double[] a, double[] b) {
@@ -268,56 +268,6 @@ public class player4 implements ContestSubmission {
         // Run your algorithm here
         int evals = 0;
         while (evals++*populationSize < 10000) {
-            double totalFitness = sumFitness();
-            
-            System.out.println(tot);
-            System.out.println(population.size());
-            for (int counter=0;counter<populationSize;counter++) {
-                //select randomly the index of 5 parents
-                int[] parents = random(tournamentSize, 0, populationSize-1);
-                //calculate the probability for every parent to be chosen, the sum is 1.0
-                double[] probability = new double[tournamentSize];
-                for (int i=0;i<tournamentSize;i++) {
-                    probability[i] = linearRanking(i,tournamentSize);
-                }
-                Individual p1 = null, p2 = null;
-                double amount = probability[0];
-                //randomize a number between 0 and 1
-                double extract = Math.random(); 
-                
-                //select the parents according to the random number and the probability of the parents
-                for(int i = 1; i <= probability.length; i++)
-                    if (extract <= amount) {
-                        p1 = population.get(parents[i-1]);
-                        break;
-                    } else {
-                        amount += probability[i];
-                    }
-                //repeat the procedure for the second parent
-                extract = Math.random();
-                
-                amount = probability[0];
-                for(int i=1;i<=probability.length;i++)
-                    if (extract <= amount) {
-                        p2 = population.get(parents[i-1]);
-                        break;
-                    } else {
-                        amount += probability[i];
-                    }
-                //generation of the new child from the parents
-                Individual newChild = crossover(p1, p2);
-
-                //apply the mutation if it necessary
-                if(rnd_.nextDouble() < mutationRate)
-                    newChild.mutate();
-
-                //add the new child to the population
-                population.add(newChild);
-            }
-            //population selection, half of the individuals must be killed
-            //inefficient way, just to understand if everything works properly
-            Collections.sort(population);
-            population = new LinkedList(population.subList(0, population.size()/2));
         }
     }
 }
