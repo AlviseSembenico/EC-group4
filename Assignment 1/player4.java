@@ -264,14 +264,10 @@ public class player4 implements ContestSubmission {
                 // add the new child to the population
                 population.add(newChild);
             }
-            // population selection, half of the individuals must be killed
-            // inefficient way, just to understand if everything works properly
-            popFitness = computeFitness();
-            Arrays.sort(popFitness);
-            population = new LinkedList<>();
-            for (int i = 0; i < popFitness.length / 2; i++)
-                population.add((double[]) popFitness[i].t);
-            // compute the fitness mean
+            //population selection, half of the individuals must be killed
+            //inefficient way, just to understand if everything works properly
+            Collections.sort(population);
+            population = population.subList(0, population.size()/2);
         }
     }
 }
