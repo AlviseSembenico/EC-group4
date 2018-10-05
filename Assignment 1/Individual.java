@@ -27,13 +27,14 @@
         return fitness;
     }
 
-    public void mutate() {
+    public void mutate(double mutateFactor) {
         for (int i = 0; i < 10; i++) {
             double coinFlip = player4.rnd_.nextDouble();
-            if (coinFlip > 0.5) {
+            if (coinFlip > mutateFactor) {
                 this.points[i] = (player4.rnd_.nextDouble() * 10) - 5;
             }
         }
+        evaluated = false;
     }
 }
 

@@ -73,12 +73,11 @@ public class player4 implements ContestSubmission {
     private Individual crossover(List<Individual> toBreed, int numPoints){
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
-        Random random = new Random();
         List<Integer> crossovers = new LinkedList<Integer>();
         int randomparent;
         int randomcrossover;
         for (int i = 0; i < numPoints; i++) {
-            randomcrossover = random.nextInt(10 + 1);
+            randomcrossover = rnd_.nextInt(10 + 1);
             if(!crossovers.contains(randomcrossover))
                 crossovers.add(randomcrossover);
             else{
@@ -94,7 +93,7 @@ public class player4 implements ContestSubmission {
         double[] newChild = new double[10];
 
         for (int k = toBreed.size() + 1; k > 0; k--) {
-            randomparent = random.nextInt(toBreed.size() + 1 - 0);
+            randomparent = rnd_.nextInt(toBreed.size() + 1 - 0);
             currentPoint =  crossovers.get(z);
             for (int j = prevPoint; j < currentPoint; j++) {
                 newChild[j] = toBreed.get(k).points[j];
@@ -164,9 +163,8 @@ public class player4 implements ContestSubmission {
      */
     private int[] random(int n, int min, int max) {
         int[] res = new int[n];
-        Random random = new Random();
         int[] i = new int[]{0};
-        random.ints(n, min, max).forEach(rn -> {
+        rnd_.ints(n, min, max).forEach(rn -> {
             res[i[0]++] = rn;
         });
         return res;
@@ -209,7 +207,7 @@ public class player4 implements ContestSubmission {
 
                 double amount = probability[0];
                 // randomize a number between 0 and 1
-                double extract = Math.random();
+                double extract = rnd_.nextDouble();
                 for (int i = 1; i <= probability.length; i++)
                     if (extract <= amount) {
                         Individual winner = tournament.get(i);
