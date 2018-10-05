@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.stream.*;
 
 
 public class player4 implements ContestSubmission {
@@ -17,7 +19,7 @@ public class player4 implements ContestSubmission {
     // Population size
     private final int populationSize = 20;
     private final int F_DIMENSIONS = 10;
-    private List<Individual> population;
+    private LinkedList<Individual> population;
     private double selectivePressure = 1.5;
     private int tournamentSize = 5;
     private double mutationRate = 0.1;
@@ -146,6 +148,63 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
+    private List<Individual> tournament(int tournamentSize, int winners, int rounds) {
+        List<Individual> res = new LinkedList<Individual>();
+        List<Individual> candidates = (List) population.clone();
+
+        for (int r = 0; r < rounds; r++) {
+            // select randomly the index of 5 parents
+            List<Integer> parents = IntStream.of(random(tournamentSize, 0, candidates.size() - 1)).boxed()
+                    .collect(Collectors.toList());
+
+            List<Individual> tournament = new LinkedList<Individual>();
+            Collections.sort(parents);
+
+            // add all selected parents to tournament
+            Iterator can = candidates.iterator(), p = parents.iterator();
+            int iteration = 0;
+            while (can.hasNext() && p.hasNext()) {
+                if (iteration == (Integer) p.next())
+                    tournament.add((Individual) can.next());
+                else
+                    can.next();
+                iteration++;
+            }
+
+            for (int w = 0; w < winners; w++) {
+                // calculate the total fitness of the tournament
+                double totalFitness = 0;
+                for (Individual candidate : tournament)
+                    totalFitness += candidate.getFitness();
+
+                // calculate the probability for every parent to be chosen, the sum is 1.0
+                double[] probability = new double[tournamentSize];
+                iteration = 0;
+                for (Individual candidate : tournament)
+                    probability[iteration++] = candidate.getFitness() / totalFitness;
+
+                double amount = probability[0];
+                // randomize a number between 0 and 1
+                double extract = Math.random();
+                for (int i = 1; i <= probability.length; i++)
+                    if (extract <= amount) {
+                        Individual winner = tournament.get(i);
+                        // add the winner to the outcome
+                        res.add(winner);
+                        // remove the winner for next round within the same tournament
+                        tournament.remove(winner);
+                        //remove also to general candidates
+                        candidates.remove(winner);
+                        break;
+                    } else {
+                        amount += probability[i];
+                    }
+            }
+        }
+        return res;
+    }
+
+
     public void run() {
         // Run your algorithm here
         int evals = 0;
@@ -199,7 +258,7 @@ public class player4 implements ContestSubmission {
             //population selection, half of the individuals must be killed
             //inefficient way, just to understand if everything works properly
             Collections.sort(population);
-            population = population.subList(0, population.size());
+            population = new LinkedList(population.subList(0, population.size()/2));
         }
     }
 }
