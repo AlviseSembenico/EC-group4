@@ -1,26 +1,26 @@
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
-import java.util.LinkedList;
 
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Properties;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Comparator;
 import java.util.Collections;
 
 
 public class player4 implements ContestSubmission {
-
-    Random rnd_;
-    ContestEvaluation evaluation;
+    public static Random rnd_;
+    public static ContestEvaluation evaluation;
     private int evaluations_limit_;
     // Population size
     private final int populationSize = 20;
     private final int F_DIMENSIONS = 10;
-    private LinkedList<double[]> population;
+    private List<Individual> population;
     private double selectivePressure = 1.5;
     private int tournamentSize = 5;
-    private double mutationRate=0.1;
+    private double mutationRate = 0.1;
     private double mutationVariability = 0.5;
     private int hardElitismN = 1;
     private int tot=0;
@@ -30,29 +30,15 @@ public class player4 implements ContestSubmission {
      * Initialize the popoulation randomly
      */
     private void populationInitialization() {
-        population = new LinkedList<double[]>();
+        population = new LinkedList<Individual>();
         for (int j = 0; j < populationSize; j++) {
-            double child[] = new double[F_DIMENSIONS];
-            for (int i = 0; i < F_DIMENSIONS; i++)
-                child[i] = rnd_.nextDouble() * 10 - 5;
-            population.add(child);
+            population.add(new Individual());
         }
     }
 
     public player4() {
         rnd_ = new Random();
         populationInitialization();
-    }
-
-    
-    //to write better which type of mutation it is
-    private void mutateChild(double premuChild[]) {
-        for (int i = 0; i < premuChild.length; i++) {
-            double coinFlip = rnd_.nextDouble();
-            if (coinFlip > 0.5) {
-                premuChild[i] = (rnd_.nextDouble() * 10) - 5;
-            }
-        }
     }
 
     //same as before
@@ -94,8 +80,8 @@ public class player4 implements ContestSubmission {
     /**
      * Crossover with crossover point in the middle
      */
-    private double[] crossover(double[] a, double[] b) {
-        return new double[] { a[0], a[1], a[2], a[3], a[4], b[5], b[6], b[7], b[8], b[9]};
+    private Individual crossover(Individual a, Individual b) {
+        return new Individual(new double[] { a.points[0], a.points[1], a.points[2], a.points[3], a.points[4], b.points[5], b.points[6], b.points[7], b.points[8], b.points[9]});
     }
 
     public void setSeed(long seed) {
@@ -124,28 +110,11 @@ public class player4 implements ContestSubmission {
             // Do sth else
         }
     }
-    
 
-    /**
-     * 
-     * @return array of wrapper, each of them containing a child and its fitness
-     */
-    private Wrapper[] computeFitness() {
-        Wrapper[] fitness = new Wrapper[population.size()];
-        int i = 0;
-        for(double[] child:population){
-            fitness[i++] = new Wrapper(child, (double) evaluation.evaluate(child),false);
-            tot++;
-            }
-        
-        
-        return fitness;
-    }
-
-    private double sumFitness(double[] fitness) {
+    private double sumFitness() {
         double total = 0.0;
-        for (double childFitness : fitness) {   
-            total += childFitness;
+        for (Individual individual : population) {   
+            total += individual.getFitness();
         }
         return total;
     }
@@ -158,14 +127,6 @@ public class player4 implements ContestSubmission {
      */
     private double linearRanking(int position,int u) {
         return ((2 - selectivePressure) / u) + ((2 * position * (selectivePressure - 1)) / (u * (u - 1)));
-    }
-
-    // using Wrapper class
-    private double sumFitness(Wrapper[] popEval) {
-        double totFitness = 0.0;
-        for (Wrapper child : popEval)
-            totFitness += (double) child.c;
-        return totFitness;
     }
 
     /**
@@ -189,9 +150,7 @@ public class player4 implements ContestSubmission {
         // Run your algorithm here
         int evals = 0;
         while (evals++*populationSize < 10000) {
-            // calculate fitness
-            Wrapper[] popFitness = computeFitness();
-            double totalFitness = sumFitness(popFitness);
+            double totalFitness = sumFitness();
             
             System.out.println(tot);
             System.out.println(population.size());
@@ -203,15 +162,15 @@ public class player4 implements ContestSubmission {
                 for (int i=0;i<tournamentSize;i++) {
                     probability[i] = linearRanking(i,tournamentSize);
                 }
-                Wrapper p1=null, p2=null;
+                Individual p1 = null, p2 = null;
                 double amount = probability[0];
                 //randomize a number between 0 and 1
                 double extract = Math.random(); 
                 
                 //select the parents according to the random number and the probability of the parents
-                for(int i=1;i<=probability.length;i++)
+                for(int i = 1; i <= probability.length; i++)
                     if (extract <= amount) {
-                        p1 = popFitness[parents[i-1]];
+                        p1 = population.get(parents[i-1]);
                         break;
                     } else {
                         amount += probability[i];
@@ -222,27 +181,25 @@ public class player4 implements ContestSubmission {
                 amount = probability[0];
                 for(int i=1;i<=probability.length;i++)
                     if (extract <= amount) {
-                        p2 = popFitness[parents[i-1]];
+                        p2 = population.get(parents[i-1]);
                         break;
                     } else {
                         amount += probability[i];
                     }
                 //generation of the new child from the parents
-                double[] newChild=crossover((double[])p1.t,(double[])p2.t);
+                Individual newChild = crossover(p1, p2);
+
                 //apply the mutation if it necessary
-                if(Math.random()<mutationRate)
-                    mutateChild(newChild);
+                if(rnd_.nextDouble() < mutationRate)
+                    newChild.mutate();
+
                 //add the new child to the population
                 population.add(newChild);
             }
             //population selection, half of the individuals must be killed
             //inefficient way, just to understand if everything works properly
-            popFitness = computeFitness();
-            Arrays.sort(popFitness);
-            population=new LinkedList<>();
-            for(int i=0;i<popFitness.length/2;i++)
-                population.add((double [])popFitness[i].t);
-            //compute the fitness mean
+            Collections.sort(population);
+            population = population.subList(0, population.size());
         }
     }
 }
