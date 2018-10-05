@@ -1,5 +1,6 @@
-import org.vu.contest.ContestSubmission;
-import org.vu.contest.ContestEvaluation;
+
+package ec4;
+
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -13,9 +14,8 @@ import java.util.Iterator;
 import java.util.stream.*;
 
 
-public class player4 implements ContestSubmission {
+public class player4 {
     public static Random rnd_;
-    public static ContestEvaluation evaluation;
     private int evaluations_limit_;
     // Population size
     private final int populationSize = 100;
@@ -110,27 +110,6 @@ public class player4 implements ContestSubmission {
         rnd_.setSeed(seed);
     }
 
-    public void setEvaluation(ContestEvaluation evaluation) {
-        // Set evaluation problem used in the run
-        this.evaluation = evaluation;
-
-        // Get evaluation properties
-        Properties props = evaluation.getProperties();
-        // Get evaluation limit
-        evaluations_limit_ = Integer.parseInt(props.getProperty("Evaluations"));
-        // Property keys depend on specific evaluation
-        // E.g. double param = Double.parseDouble(props.getProperty("property_name"));
-        boolean isMultimodal = Boolean.parseBoolean(props.getProperty("Multimodal"));
-        boolean hasStructure = Boolean.parseBoolean(props.getProperty("Regular"));
-        boolean isSeparable = Boolean.parseBoolean(props.getProperty("Separable"));
-
-        // Do sth with property values, e.g. specify relevant settings of your algorithm
-        if (isMultimodal) {
-            // Do sth
-        } else {
-            // Do sth else
-        }
-    }
 
     private double sumFitness() {
         double total = 0.0;
@@ -191,7 +170,8 @@ public class player4 implements ContestSubmission {
                     can.next();
                 iteration++;
             }
-             
+            
+            System.out.print(candidates.size()+" ");  
             for (int w = 0; w < winners; w++) {
                 // calculate the total fitness of the tournament
                 double totalFitness = 0;
@@ -217,9 +197,11 @@ public class player4 implements ContestSubmission {
                         break;
                     }  
                 } 
-                     
+                
+            System.out.print(res.size()+" ");        
             }
         }
+        System.out.println(res.size());
         return res;
     }
 
