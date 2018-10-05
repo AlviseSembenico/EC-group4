@@ -21,11 +21,12 @@ public class player4 implements ContestSubmission {
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
     private double selectivePressure = 1.5;
-    private int tournamentSize = 5;
+    private int tournamentSize = 20;
     private double mutationRate = 0.1;
     private double mutationVariability = 0.5;
     private int hardElitismN = 1;
     private int tot=0;
+    private int crossoverPoints=3;
 
 
     /**
@@ -41,19 +42,6 @@ public class player4 implements ContestSubmission {
     public player4() {
         rnd_ = new Random();
         populationInitialization();
-    }
-
-    
-    //to write better which type of mutation it is
-    private double mutateChild(double premuChild[]) {
-        for (int i = 0; i < premuChild.length; i++) {
-            double coinFlip = rnd_.nextDouble();
-            if (coinFlip > 0.7) {
-                premuChild[i] = (rnd_.nextDouble() * 10) - 5;
-            }
-        }
-
-        return premuChild[0];
     }
 
     //same as before
@@ -78,25 +66,11 @@ public class player4 implements ContestSubmission {
         }
     }
 
-    /**
-     * 
-     * @param wrappers larray of Wrapper containing the population
-     * @return Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
-     */
-    public Wrapper[] hardElitism(Wrapper[] wrappers) {
-        Arrays.sort(wrappers);
-        Wrapper[] eliteIndiv = new Wrapper[hardElitismN];
-        for (int i = 0; i < hardElitismN; i++) {
-            eliteIndiv[i] = wrappers[i];
-        }
-        return eliteIndiv;
-    }
-
     /**t
      * Crossover with crossover point in the middle
      */
 
-    private double[] crossover(List<Individual> toBreed, int numPoints){
+    private Individual crossover(List<Individual> toBreed, int numPoints){
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         Random random = new Random();
@@ -133,17 +107,8 @@ public class player4 implements ContestSubmission {
                 newChild[j] = toBreed.get(0).points[j];
             }
         }
-        return newChild;
+        return new Individual(newChild);
     }
-
-    private Individual makeChild(){
-
-        return null;
-    }
-
-//    private double[] crossover(double[] a, double[] b) {
-//        return new double[] { a[0], a[1], a[2], a[3], a[4], b[5], b[6], b[7], b[8], b[9]};
-//    }
 
     public void setSeed(long seed) {
         // Set seed of algortihms random process
@@ -263,11 +228,31 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
+    private void runFitness(int start,int end){
+        Iterator child=population.iterator();
+        for(int i=0;i<start;i++)
+            child.next();
+
+        for(;start<=end;start++){
+            Individual ind=child.next();
+            ind.getFitness();
+        }
+    }
+
 
     public void run() {
         // Run your algorithm here
         int evals = 0;
-        while (evals++*populationSize < 10000) {
+        while (true) {
+            for(int i=0;i<populationSize;i++){
+                List<Individual> parents=tournament(tournamentSize,3,1);
+                Individual child=crossover(parents, crossoverPoints);
+                if(rnd_.nextDouble()<mutationRate)
+                    child.mutate(mutationVariability);
+                population.add(child);
+            }
+            population=tournament(tournamentSize, 1,100);
         }
+
     }
 }
