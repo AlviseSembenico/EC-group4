@@ -43,19 +43,6 @@ public class player4 implements ContestSubmission {
         populationInitialization();
     }
 
-    
-    //to write better which type of mutation it is
-    private double mutateChild(double premuChild[]) {
-        for (int i = 0; i < premuChild.length; i++) {
-            double coinFlip = rnd_.nextDouble();
-            if (coinFlip > 0.7) {
-                premuChild[i] = (rnd_.nextDouble() * 10) - 5;
-            }
-        }
-
-        return premuChild[0];
-    }
-
     //same as before
     private void mutateChild2(double premuChild[]){
         // Mutation that will move shortly in the 10D space (Low variation)
@@ -135,15 +122,6 @@ public class player4 implements ContestSubmission {
         }
         return newChild;
     }
-
-    private Individual makeChild(){
-
-        return null;
-    }
-
-//    private double[] crossover(double[] a, double[] b) {
-//        return new double[] { a[0], a[1], a[2], a[3], a[4], b[5], b[6], b[7], b[8], b[9]};
-//    }
 
     public void setSeed(long seed) {
         // Set seed of algortihms random process
