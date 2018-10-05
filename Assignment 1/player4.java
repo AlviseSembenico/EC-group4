@@ -220,7 +220,7 @@ public class player4 implements ContestSubmission {
 
                 double amount = probability[0];
                 // randomize a number between 0 and 1
-                double extract = Math.random();
+                double extract = rnd_.nextDouble();
                 for (int i = 1; i <= probability.length; i++)
                     if (extract <= amount) {
                         Individual winner = tournament.get(i);
