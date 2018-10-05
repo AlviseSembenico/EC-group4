@@ -23,6 +23,7 @@
         if (!evaluated) {
             fitness = (double) player4.evaluation.evaluate(this.points);
         }
+        evaluated = true;
         return fitness;
     }
 
