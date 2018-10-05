@@ -43,6 +43,19 @@ public class player4 implements ContestSubmission {
         populationInitialization();
     }
 
+    
+    //to write better which type of mutation it is
+    private double mutateChild(double premuChild[]) {
+        for (int i = 0; i < premuChild.length; i++) {
+            double coinFlip = rnd_.nextDouble();
+            if (coinFlip > 0.7) {
+                premuChild[i] = (rnd_.nextDouble() * 10) - 5;
+            }
+        }
+
+        return premuChild[]
+    }
+
     //same as before
     private void mutateChild2(double premuChild[]){
         // Mutation that will move shortly in the 10D space (Low variation)
@@ -79,12 +92,58 @@ public class player4 implements ContestSubmission {
         return eliteIndiv;
     }
 
-    /**
+    /**t
      * Crossover with crossover point in the middle
      */
-    private Individual crossover(Individual a, Individual b) {
-        return new Individual(new double[] { a.points[0], a.points[1], a.points[2], a.points[3], a.points[4], b.points[5], b.points[6], b.points[7], b.points[8], b.points[9]});
+
+    private double Crossover(List<Individual[]> toBreed, int numPoints){
+        // Using 3 parents, make a 3 point crossover
+        // Choose the 3 points
+        Random random = new Random();
+        list<int> crossovers = new ArrayList<int>();
+        int randomparent;
+        int randomcrossover;
+        for (int i = 0; i < numPoints; i++) {
+            randomcrossover = random.nextInt(10 + 1);
+            if(!crossovers.Contains(randomcrossover))
+                crossovers.add(randomcrossover);
+            else{
+                i--;
+            }
+        }
+
+        Collections.sort(crossovers);
+        int prevPoint = 0;
+        int currentPoint;
+        int z = 0
+        Individual newguy = new Individual();
+        double[] newChild = new double[10];
+
+        for (int k = toBreed.size() + 1; k > 0; k--) {
+            randomparent = random.nextInt(toBreed.size() + 1 - 0);
+            currentPoint =  crossovers[z]
+            for (int j = prevPoint; j < currentPoint; j++) {
+                newChild[j] = toBreed[k].points[j];
+            }
+            prevPoint = currentPoint;
+            z++;
+        }
+        if(crossovers[-1] < 10){
+            for (int j = prevPoint; j < 10; j++) {
+                newChild[j] = toBreed[0].points[j];
+            }
+        }
+        return newChild;
     }
+
+    private Individual makeChild(){
+
+        return newChild;
+    }
+
+//    private double[] crossover(double[] a, double[] b) {
+//        return new double[] { a[0], a[1], a[2], a[3], a[4], b[5], b[6], b[7], b[8], b[9]};
+//    }
 
     public void setSeed(long seed) {
         // Set seed of algortihms random process
