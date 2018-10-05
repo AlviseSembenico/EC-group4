@@ -100,7 +100,7 @@ public class player4 implements ContestSubmission {
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         Random random = new Random();
-        list<int> crossovers = new ArrayList<int>();
+        List<Integer> crossovers = new ArrayList<Integer>();
         int randomparent;
         int randomcrossover;
         for (int i = 0; i < numPoints; i++) {
@@ -115,7 +115,7 @@ public class player4 implements ContestSubmission {
         Collections.sort(crossovers);
         int prevPoint = 0;
         int currentPoint;
-        int z = 0
+        int z = 0;
         Individual newguy = new Individual();
         double[] newChild = new double[10];
 
