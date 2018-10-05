@@ -171,7 +171,7 @@ public class player4 {
                 iteration++;
             }
             
-            System.out.print(candidates.size()+" ");  
+           // System.out.print(candidates.size()+" ");  
             for (int w = 0; w < winners; w++) {
                 // calculate the total fitness of the tournament
                 double totalFitness = 0;
@@ -198,10 +198,10 @@ public class player4 {
                     }  
                 } 
                 
-            System.out.print(res.size()+" ");        
+            //System.out.print(res.size()+" ");        
             }
         }
-        System.out.println(res.size());
+        //System.out.println(res.size());
         return res;
     }
 

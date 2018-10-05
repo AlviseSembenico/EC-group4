@@ -22,12 +22,11 @@ public class player4 implements ContestSubmission {
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
     private double selectivePressure = 1.5;
-    private int tournamentSize = 20;
+    private int tournamentSize = 10;
     private double mutationRate = 0.1;
-    private double mutationVariability = 0.5;
+    private double mutationVariability = 0.8;
     private int hardElitismN = 1;
-    private int tot=0;
-    private int crossoverPoints=3;
+    private int crossoverPoints=2;
 
 
     /**
@@ -197,11 +196,15 @@ public class player4 implements ContestSubmission {
                 double totalFitness = 0;
                 for (Individual candidate : tournament.keySet())
                     totalFitness += candidate.getFitness();
+                if(totalFitness==0)
+                    for(int c=0;c<winners*rounds-res.size();c++)
+                        res.add(candidates.get(c));
+
                 // calculate the probability for every parent to be chosen, the sum is 1.0
                 iteration = 0;
                 for (Individual candidate : tournament.keySet())
                     tournament.replace(candidate,candidate.getFitness() / totalFitness);
-
+                
                 double amount = 0.0;
                 // randomize a number between 0 and 1
                 double extract = rnd_.nextDouble();
@@ -220,6 +223,7 @@ public class player4 implements ContestSubmission {
                      
             }
         }
+        
         return res;
     }
 
