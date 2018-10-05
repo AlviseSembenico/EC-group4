@@ -70,11 +70,11 @@ public class player4 implements ContestSubmission {
      * @param wrappers larray of Wrapper containing the population
      * @return Returns the top hardElitismN individuals directly to next generation (array of hardElitismN indivs)
      */
-    public Wrapper[] hardElitism(Wrapper[] wrappers) {
-        Arrays.sort(wrappers);
-        Wrapper[] eliteIndiv = new Wrapper[hardElitismN];
+    public List<Individual> hardElitism(List<Individual> individuals) {
+        Collections.sort(individuals);
+        List<Individual> eliteIndiv = new LinkedList<Individual>();
         for (int i = 0; i < hardElitismN; i++) {
-            eliteIndiv[i] = wrappers[i];
+            eliteIndiv.add(individuals.get(i));
         }
         return eliteIndiv;
     }
