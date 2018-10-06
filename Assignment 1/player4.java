@@ -232,17 +232,25 @@ public class player4 implements ContestSubmission {
         // Run your algorithm here
         int evals = 0;
         while (true) {
-            List<Individual> offstring=new LinkedList<Individual>(); 
+            List<Individual> offspring=new LinkedList<Individual>();
             for(int i=0;i<populationSize;i++){
                 List<Individual> parents=tournament(tournamentSize,3,1);
                 Individual child=crossover(parents, crossoverPoints);
                 if(rnd_.nextDouble()<mutationRate)
                     child.mutate(mutationVariability);
-                offstring.add(child);
+                offspring.add(child);
             }
-            for(Individual c:offstring)
+
+            for(Individual c:offspring)
                 population.add(c);
-            population=(LinkedList<Individual>)tournament(tournamentSize, 1,100);
+            population=(LinkedList<Individual>)tournament(tournamentSize, 1, populationSize-1);
+            // Basic elitism implementation
+            Individual mostfit = population.get(0);
+            for (Individual x: population)
+                if (x.fitness>mostfit.fitness)
+                    mostfit=x;
+            population.add(mostfit);
+
         }
 
     }
