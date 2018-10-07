@@ -5,7 +5,7 @@
  */
 package ec4;
 
-import java.util.Random;
+import java.util.Random; 
 
 
  class Individual implements Comparable {
@@ -13,6 +13,7 @@ import java.util.Random;
     public double fitness;
     private boolean evaluated = false;
     Random rnd_=new Random();
+    public static BentCigarFunction bent= new BentCigarFunction();
     
     @Override   
     public int compareTo(Object t) {
@@ -20,7 +21,7 @@ import java.util.Random;
     }
     
     public double evaluate(Object c){
-        return 1.0;
+        return (double) bent.evaluate(c);
     }
     
     public Individual(double[] points){

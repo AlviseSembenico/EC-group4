@@ -44,7 +44,6 @@ public class player4 implements ContestSubmission {
         populationInitialization();
     }
 
-    //same as before
     private void mutateChild2(double premuChild[]){
         // Mutation that will move shortly in the 10D space (Low variation)
         double p1 = 0.8 * mutationVariability + 0.1; //p1 from 0.1 to 0.9
@@ -69,7 +68,6 @@ public class player4 implements ContestSubmission {
     /**t
      * Crossover with crossover point in the middle
      */
-
     private Individual crossover(List<Individual> parents, int numPoints){
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
@@ -225,6 +223,13 @@ public class player4 implements ContestSubmission {
         }
         
         return res;
+    }
+
+    private double distance(Individual ch1, Individual ch2){
+        double res=0.0;
+        for(int i=0;i<ch1.points.length;i++)
+            res+=Math.pow(ch1.points[i]+ch2.points[i], 2)
+        return Math.sqrt(res);
     }
 
 
