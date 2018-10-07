@@ -19,9 +19,16 @@
             this.points[i] = player4.rnd_.nextDouble() * 10 - 5;
     }
 
-    public double getFitness() {
+    public double getFitness(){
         if (!evaluated) {
-            fitness = (double) player4.evaluation.evaluate(this.points);
+            try{
+                fitness = (double) player4.evaluation.evaluate(this.points);
+            }
+            catch(Exception e){
+                System.out.println("Ran out of evaluation");
+                Object a=null;
+                a.equals(2);
+            }
         }
         evaluated = true;
         return fitness;

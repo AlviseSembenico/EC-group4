@@ -6,6 +6,10 @@
 package ec4;
 
 import java.util.Random; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.vu.contest.*;
+
 
 
  class Individual implements Comparable {
@@ -13,15 +17,36 @@ import java.util.Random;
     public double fitness;
     private boolean evaluated = false;
     Random rnd_=new Random();
-    public static BentCigarFunction bent= new BentCigarFunction();
+    static ContestEvaluation f=null;
+    static double maxValue=0;
     
     @Override   
     public int compareTo(Object t) {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
     
-    public double evaluate(Object c){
-        return (double) bent.evaluate(c);
+    public double evaluate(Object c) {
+        if(f==null)
+            try {
+                f=(org.vu.contest.ContestEvaluation)Class.forName("BentCigarFunction").newInstance();
+
+            } catch (Exception ex) {
+                Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        Object res=f.evaluate(c);
+        if(res==null){
+            f=null;
+            return evaluate(c);
+        }
+        double result=(double) res;
+        if(result>maxValue){
+            maxValue=result;
+            System.out.println("new record for fitness"+maxValue);
+        }
+        return result;
+            
+            
+       // return (double)rnd_.nextDouble()*rnd_.nextInt(8);
     }
     
     public Individual(double[] points){
