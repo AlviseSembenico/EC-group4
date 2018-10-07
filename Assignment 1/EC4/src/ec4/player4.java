@@ -74,6 +74,8 @@ public class player4 implements ContestSubmission {
 
     }
 
+    
+    
     private void mutateChild2(double premuChild[]) {
         // Mutation that will move shortly in the 10D space (Low variation)
         double p1 = 0.8 * mutationVariability + 0.1; // p1 from 0.1 to 0.9
@@ -270,17 +272,17 @@ public class player4 implements ContestSubmission {
             for (int i = 0; i < populationSize; i++) {
                 List<Individual> parents = tournament(tournamentSize, 3, 1);
                 Individual child = crossover(parents, crossoverPoints);
-                if (rnd_.nextDouble() < mutationRate)
+                if (rnd_.nextDouble() < mutationRate){
+                    offspring.add(new Individual(child.points));
                     child.mutate(mutationVariability);
+                }
                 offspring.add(child);
             }
 
             for (Individual c : offspring)
                 population.add(c);
             List<Individual> tmp = topIndividual(elitismElements);
-
             population = (LinkedList<Individual>) tournament(tournamentSize, 1, populationSize - elitismElements);
-            // System.out.println("size of tournament"+population.size());
             population.addAll(tmp);
 
         }
