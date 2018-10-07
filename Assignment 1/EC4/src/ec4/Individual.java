@@ -19,13 +19,18 @@ class Individual implements Comparable {
     static ContestEvaluation f = null;
     static double maxValue = 0;
     static int totEval = 0;
-
+    static int nEval=10000;
+   
     @Override
     public int compareTo(Object t) {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
     public double evaluate(Object c) {
+        if(nEval==totEval){
+             System.out.println("Score:" + maxValue);
+            String.valueOf(null);
+        }
         if (f == null) {
             try {
                 f = (org.vu.contest.ContestEvaluation) Class.forName("BentCigarFunction").newInstance();
@@ -36,7 +41,6 @@ class Individual implements Comparable {
         }
         Object res = f.evaluate(c);
         if (res == null) {
-
             f = null;
             return evaluate(c);
         }
@@ -44,7 +48,7 @@ class Individual implements Comparable {
         totEval++;
         if (result > maxValue) {
             maxValue = result;
-            System.out.println("new record for fitness " + maxValue + ", evaluation n: " + totEval);
+           // System.out.println("new record for fitness " + maxValue + ", evaluation n: " + totEval);
         }
         return result;
 
