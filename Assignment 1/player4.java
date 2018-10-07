@@ -190,7 +190,7 @@ public class player4 implements ContestSubmission {
             res[i[0]++] = rn;
         });
         return res;
-    }
+    } 
 
     private List<Individual> tournament(int tournamentSize, int winners, int rounds) {
         List<Individual> res = new LinkedList<Individual>();
