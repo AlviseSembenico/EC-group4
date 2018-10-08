@@ -16,11 +16,14 @@ class Individual implements Comparable {
     public double fitness;
     private boolean evaluated = false;
     Random rnd_ = new Random();
+    public double sigma=1;
     static ContestEvaluation f = null;
     static double maxValue = 0;
     static int totEval = 0;
     static int nEval=10000;
-   
+    
+    
+    
     @Override
     public int compareTo(Object t) {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
@@ -83,6 +86,19 @@ class Individual implements Comparable {
         }
         evaluated = false;
     }
+    
+    public void mutateFromNormal(double mutateFactor) {
+        for (int i = 0; i < 10; i++) {
+            double coinFlip = rnd_.nextDouble();
+            if (coinFlip > mutateFactor) {
+                double generated=rnd_.nextGaussian()*sigma;
+                while(this.points[i]+generated>=5 && this.points[i]+generated<=-5)
+                    generated=rnd_.nextGaussian()*sigma;
+                this.points[i] += generated;
+            }
+        }
+        evaluated = false;
+    }
 
     private boolean isNumber(String l) {
         try {
@@ -97,6 +113,8 @@ class Individual implements Comparable {
         return isNumber(String.valueOf(l));
     }
 
+    
+    //deprecated, not use
     public void mutateChildLarge(double mutationVariability) {
         for (int i = 0; i < points.length; i++) {
             String n = "";
