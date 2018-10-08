@@ -16,22 +16,22 @@ class Individual implements Comparable {
     public double fitness;
     private boolean evaluated = false;
     Random rnd_ = new Random();
-    public double sigma=1;
+    public double stepSize = 1;
     static ContestEvaluation f = null;
     static double maxValue = 0;
     static int totEval = 0;
-    static int nEval=10000;
-    
-    
-    
+    static int nEval = 10000;
+    static int nDimension;
+    public double adaptiveStep;
+
     @Override
     public int compareTo(Object t) {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
     public double evaluate(Object c) {
-        if(nEval==totEval){
-             System.out.println("Score:" + maxValue);
+        if (nEval == totEval) {
+            System.out.println("Score:" + maxValue);
             String.valueOf(null);
         }
         if (f == null) {
@@ -51,7 +51,7 @@ class Individual implements Comparable {
         totEval++;
         if (result > maxValue) {
             maxValue = result;
-           // System.out.println("new record for fitness " + maxValue + ", evaluation n: " + totEval);
+            // System.out.println("new record for fitness " + maxValue + ", evaluation n: " + totEval);
         }
         return result;
 
@@ -59,10 +59,12 @@ class Individual implements Comparable {
     }
 
     public Individual(double[] points) {
+        adaptiveStep=1/Math.sqrt(nDimension);
         this.points = points;
     }
 
     public Individual() {
+        adaptiveStep=1/Math.sqrt(nDimension);
         this.points = new double[10];
         for (int i = 0; i < 10; i++) {
             this.points[i] = rnd_.nextDouble() * 10 - 5;
@@ -86,17 +88,23 @@ class Individual implements Comparable {
         }
         evaluated = false;
     }
+
+    private void mutateStepSize(){
+        stepSize=stepSize*Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian());
+    }
     
     public void mutateFromNormal(double mutateFactor) {
         for (int i = 0; i < 10; i++) {
             double coinFlip = rnd_.nextDouble();
             if (coinFlip > mutateFactor) {
-                double generated=rnd_.nextGaussian()*sigma;
-                while(this.points[i]+generated>=5 && this.points[i]+generated<=-5)
-                    generated=rnd_.nextGaussian()*sigma;
+                double generated = rnd_.nextGaussian() * stepSize;
+                while (this.points[i] + generated >= 5 && this.points[i] + generated <= -5) {
+                    generated = rnd_.nextGaussian() * stepSize;
+                }
                 this.points[i] += generated;
             }
         }
+        mutateStepSize();
         evaluated = false;
     }
 
@@ -113,8 +121,12 @@ class Individual implements Comparable {
         return isNumber(String.valueOf(l));
     }
 
-    
-    //deprecated, not use
+    /**
+     * Does some thing in old style.
+     *
+     * @deprecated use {@mutateFromNormal()} instead.
+     */
+    @Deprecated
     public void mutateChildLarge(double mutationVariability) {
         for (int i = 0; i < points.length; i++) {
             String n = "";
@@ -122,8 +134,9 @@ class Individual implements Comparable {
                 if (isNumber(l)) {
                     if (rnd_.nextDouble() < mutationVariability) {
                         n += rnd_.nextInt(10);
-                    }else
+                    } else {
                         n += l;
+                    }
                 } else {
                     n += l;
                 }
@@ -131,7 +144,7 @@ class Individual implements Comparable {
             }
             points[i] = Math.abs(Double.valueOf(n)) % 10 - 5;
         }
-        
+
         evaluated = false;
     }
 }

@@ -79,6 +79,7 @@ public class player4 implements ContestSubmission {
     
     public player4() {
         rnd_ = new Random();
+        Individual.nDimension=10;
         populationInitialization();
         setParameters();
     }
