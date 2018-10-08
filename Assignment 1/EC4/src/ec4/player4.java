@@ -30,7 +30,9 @@ public class player4 implements ContestSubmission {
     private double mutationRate = 0.1;
     private double mutationVariability = 0.8;
     private int crossoverPoints = 2;
+    private boolean ageing=true;
     private int elitismElements = 10;
+    private double ageingFactor=0.3;
 
     /**
      * Initialize the popoulation randomly
@@ -269,11 +271,27 @@ public class player4 implements ContestSubmission {
             top.add(population.get(n));
         return top;
     }
-
+    
+    private void slideWindow(){
+        double minFitness=0.0;
+        for(Individual ind:population)            
+            if(ind.getFitness()<minFitness)
+                minFitness=ind.getFitness();
+        for(Individual ind:population)            
+            ind.fitness-=minFitness;
+    }
+    
+    private void ageing(){
+        for(Individual ind:population)            
+            ind.fitness-=ageingFactor;
+    }
+    
     public void run() {
         // Run your algorithm here
         int evals = 0;
         while (true) {
+            if(ageing)
+                ageing();
             List<Individual> offspring = new LinkedList<Individual>();
             for (int i = 0; i < populationSize; i++) {
                 List<Individual> parents = tournament(tournamentSize, 3, 1);
@@ -287,6 +305,7 @@ public class player4 implements ContestSubmission {
 
             for (Individual c : offspring)
                 population.add(c);
+            slideWindow();
             List<Individual> tmp = topIndividual(elitismElements);
             population = (LinkedList<Individual>) tournament(tournamentSize, 1, populationSize - elitismElements);
             population.addAll(tmp);
