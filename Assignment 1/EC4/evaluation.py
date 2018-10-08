@@ -15,7 +15,9 @@ opt = {
     "mutationRate": np.arange(0,1,0.05),
     "mutationVariability": np.arange(0,1,0.05),
     "crossoverPoints": range(1,6,1),
-    "elitismElements": range(1,20,1)
+    "elitismElements": range(1,20,1),
+    "ageing":false,
+    "ageingFactor":0.0
 }
 
 topScore=0
@@ -26,10 +28,11 @@ def run(param,counter=0,current={}):
     global topDict
     
     if counter==len(param):
+        
+        file=open(file_name,'w')
         for c in current.keys():
-            file=open(file_name,'w')
-            file.write("{}:{}\n".format(c,current[c]))
-            file.close()
+            file.write("{}={}\n".format(c,current[c]))
+        file.close()
         tot=0
         for i in range(0,run_times):
             result=subprocess.run(['java','-jar','dist\EC4.jar','-submission=player4','-evaluation=BentCigarFunction','-seed=1'], stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)

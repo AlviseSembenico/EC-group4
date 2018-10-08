@@ -30,8 +30,8 @@ public class player4 implements ContestSubmission {
     private double mutationRate = 0.1;
     private double mutationVariability = 0.8;
     private int crossoverPoints = 2;
-    private boolean ageing=true;
-    private int elitismElements = 10;
+    private boolean ageing=false;
+    private int elitismElements = 0;
     private double ageingFactor=0.3;
 
     /**
@@ -48,21 +48,21 @@ public class player4 implements ContestSubmission {
     
         Properties prop = new Properties();
         InputStream input = null;
-
         try {
-
             input = new FileInputStream("C:\\Users\\alvis\\OneDrive\\University\\UVA\\EC\\EC-group4\\Assignment 1\\EC4\\src\\properties.txt"    );
             // load a properties file
             prop.load(input);
             // get the property value and print it out
             populationSize=Integer.valueOf(prop.getProperty("populationSize"));
-            selectivePressure=Integer.valueOf(prop.getProperty("selectivePressure"));
+            selectivePressure=Double.valueOf(prop.getProperty("selectivePressure"));
             tournamentSize=Integer.valueOf(prop.getProperty("tournamentSize"));
-            mutationRate=Integer.valueOf(prop.getProperty("mutationRate"));
-            mutationVariability=Integer.valueOf(prop.getProperty("mutationVariability"));
+            mutationRate=Double.valueOf(prop.getProperty("mutationRate"));
+            mutationVariability=Double.valueOf(prop.getProperty("mutationVariability"));
             crossoverPoints=Integer.valueOf(prop.getProperty("crossoverPoints"));
             elitismElements=Integer.valueOf(prop.getProperty("elitismElements"));
-            Individual.nEval=Integer.valueOf(prop.getProperty("nEval"));
+            ageing=Boolean.valueOf(prop.getProperty("ageing"));
+            ageingFactor=Double.valueOf(prop.getProperty("ageingFactor"));
+            Individual.nEval=Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -80,6 +80,7 @@ public class player4 implements ContestSubmission {
     public player4() {
         rnd_ = new Random();
         populationInitialization();
+        setParameters();
     }
 
     
@@ -302,14 +303,17 @@ public class player4 implements ContestSubmission {
                 }
                 offspring.add(child);
             }
-
+            population=new LinkedList<Individual>();
+            for (Individual c : offspring)
+                population.add(c);
+            /*
             for (Individual c : offspring)
                 population.add(c);
             slideWindow();
             List<Individual> tmp = topIndividual(elitismElements);
             population = (LinkedList<Individual>) tournament(tournamentSize, 1, populationSize - elitismElements);
             population.addAll(tmp);
-
+            */
         }
 
     }
