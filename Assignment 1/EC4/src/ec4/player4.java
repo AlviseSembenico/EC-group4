@@ -79,8 +79,9 @@ public class player4 implements ContestSubmission {
     
     public player4() {
         rnd_ = new Random();
-        Individual.nDimension=10;
         populationInitialization();
+        Individual.nDimension=10;
+        Individual.population=population;
         setParameters();
     }
     
@@ -257,13 +258,6 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
-    private double distance(Individual ch1, Individual ch2) {
-        double res = 0.0;
-        for (int i = 0; i < ch1.points.length; i++)
-            res += Math.pow(ch1.points[i] + ch2.points[i], 2);
-        return Math.sqrt(res);
-    }
-
     private List<Individual> topIndividual(int n) {
         List<Individual> top = new LinkedList<Individual>();
         Collections.sort(population);
@@ -286,6 +280,9 @@ public class player4 implements ContestSubmission {
             ind.fitness-=ageingFactor;
     }
     
+    
+    
+    
     public void run() {
         // Run your algorithm here
         int evals = 0;
@@ -298,13 +295,20 @@ public class player4 implements ContestSubmission {
                 Individual child = crossover(parents, crossoverPoints);
                 if (rnd_.nextDouble() < mutationRate){
                     offspring.add(new Individual(child.points));
-                    child.mutateFromNormal(mutationVariability);
+                    child.mutateFromNormalVector(mutationVariability);
                 }
                 offspring.add(child);
             }
             population=new LinkedList<Individual>();
             for (Individual c : offspring)
                 population.add(c);
+            
+            for (Individual c : population)
+                for (Individual c1 : population)
+                    System.out.println(c.distance(c1)+" ");
+            System.out.println("-------");
+            
+            
             /*
             for (Individual c : offspring)
                 population.add(c);

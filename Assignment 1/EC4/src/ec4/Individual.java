@@ -5,6 +5,9 @@
  */
 package ec4;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,8 +25,11 @@ class Individual implements Comparable {
     static int totEval = 0;
     static int nEval = 10000;
     static int nDimension;
+    static List<Individual> population; 
     public double adaptiveStep;
     public double coordinateStep;
+    public double distanceNeighbors=0.5;
+    
 
     @Override
     public int compareTo(Object t) {
@@ -99,6 +105,37 @@ class Individual implements Comparable {
             stepSize[i]*=Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian()+coordinateStep*rnd_.nextGaussian());
     }
     
+    private void mutateStepSizeVector(){
+        List<Individual> a=getNeighbors(distanceNeighbors);
+        while(a.size()==0){
+            distanceNeighbors+=0.1;
+            a=getNeighbors(distanceNeighbors);
+        }
+        Collections.sort(a);
+        Individual top=a.get(0);
+        if(top.getFitness()>getFitness())
+            for(int i=0;i<nDimension;i++){
+                stepSize[i]=top.points[i]-points[i]+rnd_.nextGaussian();
+            }
+        else
+            mutateStepSize();
+    }
+    public void mutateFromNormalVector(double mutateFactor) {
+        for (int i = 0; i < nDimension; i++) {
+            double coinFlip = rnd_.nextDouble();
+            if (coinFlip > mutateFactor) {
+                double generated = Math.abs(rnd_.nextGaussian()) * stepSize[i];
+                while (this.points[i] + generated >= 5 && this.points[i] + generated <= -5) {
+                    generated = Math.abs(rnd_.nextGaussian()) * stepSize[i];
+                }
+                this.points[i] += generated;
+            }
+        }
+        mutateStepSizeVector();
+        evaluated = false;
+    }
+    
+    
     public void mutateFromNormal(double mutateFactor) {
         for (int i = 0; i < nDimension; i++) {
             double coinFlip = rnd_.nextDouble();
@@ -123,6 +160,21 @@ class Individual implements Comparable {
         }
     }
 
+    public double distance(Individual ch1) {
+        double res = 0.0;
+        for (int i = 0; i < ch1.points.length; i++)
+            res += Math.pow(ch1.points[i] - this.points[i], 2);
+        return Math.sqrt(res);
+    }
+    
+    public List<Individual> getNeighbors(double dist){
+        List<Individual> res= new LinkedList<Individual>();
+        for(Individual a:population)
+            if(distance(a)<dist)
+                res.add(a);
+        return res;
+    }
+    
     private boolean isNumber(char l) {
         return isNumber(String.valueOf(l));
     }
