@@ -49,7 +49,7 @@ public class player4 implements ContestSubmission {
         Properties prop = new Properties();
         InputStream input = null;
         try {
-            input = new FileInputStream("C:\\Users\\alvis\\OneDrive\\University\\UVA\\EC\\EC-group4\\Assignment 1\\EC4\\src\\properties.txt"    );
+            input = new FileInputStream("C:\\Users\\alvis\\OneDrive\\University\\UVA\\EC\\EC-group4\\Assignment 1\\EC4\\src\\properties.txt");
             // load a properties file
             prop.load(input);
             // get the property value and print it out
@@ -83,8 +83,6 @@ public class player4 implements ContestSubmission {
         populationInitialization();
         setParameters();
     }
-
-    
     
     private void mutateChild2(double premuChild[]) {
         // Mutation that will move shortly in the 10D space (Low variation)

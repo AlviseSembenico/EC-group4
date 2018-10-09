@@ -16,7 +16,7 @@ opt = {
     "mutationVariability": np.arange(0,1,0.05),
     "crossoverPoints": range(1,6,1),
     "elitismElements": range(1,20,1),
-    "ageing":false,
+    "ageing":False,
     "ageingFactor":0.0
 }
 

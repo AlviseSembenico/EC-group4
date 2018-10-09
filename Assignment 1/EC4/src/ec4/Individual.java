@@ -16,13 +16,14 @@ class Individual implements Comparable {
     public double fitness;
     private boolean evaluated = false;
     Random rnd_ = new Random();
-    public double stepSize = 1;
+    public double[] stepSize;
     static ContestEvaluation f = null;
     static double maxValue = 0;
     static int totEval = 0;
     static int nEval = 10000;
     static int nDimension;
     public double adaptiveStep;
+    public double coordinateStep;
 
     @Override
     public int compareTo(Object t) {
@@ -59,16 +60,20 @@ class Individual implements Comparable {
     }
 
     public Individual(double[] points) {
-        adaptiveStep=1/Math.sqrt(nDimension);
-        this.points = points;
+        this();
+        this.points=points;
     }
 
     public Individual() {
-        adaptiveStep=1/Math.sqrt(nDimension);
         this.points = new double[10];
         for (int i = 0; i < 10; i++) {
             this.points[i] = rnd_.nextDouble() * 10 - 5;
         }
+        adaptiveStep=1/Math.sqrt(2*nDimension);
+        coordinateStep=1/Math.sqrt(2*Math.sqrt(nDimension));
+        stepSize=new double[nDimension];
+        for(int i=0;i<nDimension;i++)
+            stepSize[i]=1;
     }
 
     public double getFitness() {
@@ -90,16 +95,17 @@ class Individual implements Comparable {
     }
 
     private void mutateStepSize(){
-        stepSize=stepSize*Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian());
+        for(int i=0;i<nDimension;i++)
+            stepSize[i]*=Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian()+coordinateStep*rnd_.nextGaussian());
     }
     
     public void mutateFromNormal(double mutateFactor) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < nDimension; i++) {
             double coinFlip = rnd_.nextDouble();
             if (coinFlip > mutateFactor) {
-                double generated = rnd_.nextGaussian() * stepSize;
+                double generated = rnd_.nextGaussian() * stepSize[i];
                 while (this.points[i] + generated >= 5 && this.points[i] + generated <= -5) {
-                    generated = rnd_.nextGaussian() * stepSize;
+                    generated = rnd_.nextGaussian() * stepSize[i];
                 }
                 this.points[i] += generated;
             }
