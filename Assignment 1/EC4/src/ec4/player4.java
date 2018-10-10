@@ -296,7 +296,7 @@ public class player4 implements ContestSubmission {
     
     }     
     
-    
+   
     public void run() {
         // Run your algorithm here
         int evals = 0;
