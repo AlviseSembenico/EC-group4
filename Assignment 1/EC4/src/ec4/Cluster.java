@@ -27,10 +27,14 @@ public class Cluster {
     }
     
     public double averageDistance(Cluster cl){
+        if(this==cl)
+            return 0;
         double tot=0;
         for(Individual i:components)
             for(Individual j:cl.components)
                 tot+=i.distance(j);
+        if(components.size()+cl.components.size()==0)
+            return 0;
         return tot/(components.size()+cl.components.size());
     }
     

@@ -1,4 +1,5 @@
 package ec4;
+
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
 
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class player4 implements ContestSubmission {
+
     public static Random rnd_;
     public static ContestEvaluation evaluation;
     private int evaluations_limit_;
@@ -30,10 +32,10 @@ public class player4 implements ContestSubmission {
     private double mutationRate = 0.1;
     private double mutationVariability = 0.8;
     private int crossoverPoints = 2;
-    private boolean ageing=false;
+    private boolean ageing = false;
     private int elitismElements = 0;
-    private double ageingFactor=0.3;
-    private double clusterRadius=3.0;
+    private double ageingFactor = 0.3;
+    private double clusterRadius = 3.0;
 
     /**
      * Initialize the popoulation randomly
@@ -45,8 +47,8 @@ public class player4 implements ContestSubmission {
         }
     }
 
-    private void setParameters(){
-    
+    private void setParameters() {
+
         Properties prop = new Properties();
         InputStream input = null;
         try {
@@ -54,16 +56,16 @@ public class player4 implements ContestSubmission {
             // load a properties file
             prop.load(input);
             // get the property value and print it out
-            populationSize=Integer.valueOf(prop.getProperty("populationSize"));
-            selectivePressure=Double.valueOf(prop.getProperty("selectivePressure"));
-            tournamentSize=Integer.valueOf(prop.getProperty("tournamentSize"));
-            mutationRate=Double.valueOf(prop.getProperty("mutationRate"));
-            mutationVariability=Double.valueOf(prop.getProperty("mutationVariability"));
-            crossoverPoints=Integer.valueOf(prop.getProperty("crossoverPoints"));
-            elitismElements=Integer.valueOf(prop.getProperty("elitismElements"));
-            ageing=Boolean.valueOf(prop.getProperty("ageing"));
-            ageingFactor=Double.valueOf(prop.getProperty("ageingFactor"));
-            Individual.nEval=Integer.valueOf(prop.getProperty("nExec"));
+            populationSize = Integer.valueOf(prop.getProperty("populationSize"));
+            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
+            tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
+            mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
+            mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
+            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
+            elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
+            ageing = Boolean.valueOf(prop.getProperty("ageing"));
+            ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
+            Individual.nEval = Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -77,14 +79,14 @@ public class player4 implements ContestSubmission {
             }
         }
     }
-    
+
     public player4() {
         rnd_ = new Random();
-        Individual.nDimension=10;
+        Individual.nDimension = 10;
         populationInitialization();
         setParameters();
     }
-    
+
     private void mutateChild2(double premuChild[]) {
         // Mutation that will move shortly in the 10D space (Low variation)
         double p1 = 0.8 * mutationVariability + 0.1; // p1 from 0.1 to 0.9
@@ -109,16 +111,16 @@ public class player4 implements ContestSubmission {
     /**
      * t Crossover with crossover point in the middle
      */
-    private Individual crossover(List<Individual> parents, int numPoints,int position) {
+    private Individual crossover(List<Individual> parents, int numPoints, int position) {
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         List<Integer> crossovers = new LinkedList<Integer>();
         int randomCrossover;
         for (int i = 0; i < numPoints; i++) {
             randomCrossover = rnd_.nextInt(F_DIMENSIONS - 1);
-            if (!crossovers.contains(randomCrossover))
+            if (!crossovers.contains(randomCrossover)) {
                 crossovers.add(randomCrossover);
-            else {
+            } else {
                 i--;
             }
         }
@@ -131,16 +133,18 @@ public class player4 implements ContestSubmission {
 
         for (int i = 0; i < F_DIMENSIONS; i++) {
             if (i == point) {
-                if (!p.hasNext())
+                if (!p.hasNext()) {
                     p = parents.iterator();
+                }
                 currentParent = (Individual) p.next();
 
-                if (!c.hasNext())
+                if (!c.hasNext()) {
                     point = -1;
+                }
             }
             newChild[i] = currentParent.points[i];
         }
-        return new Individual(newChild,position);
+        return new Individual(newChild, position);
     }
 
     public void setSeed(long seed) {
@@ -179,9 +183,9 @@ public class player4 implements ContestSubmission {
     }
 
     /**
-     * 
+     *
      * @param position order of arrival of the parent within the tournament
-     * @param u        the dimension of the tournament
+     * @param u the dimension of the tournament
      * @return the probability for the parent to be chosen
      */
     private double linearRanking(int position, int u) {
@@ -189,15 +193,15 @@ public class player4 implements ContestSubmission {
     }
 
     /**
-     * 
-     * @param n   # of random number generated
+     *
+     * @param n # of random number generated
      * @param min min for every number
      * @param max max for every number
      * @return n integer random number between min and max
      */
     private int[] random(int n, int min, int max) {
         int[] res = new int[n];
-        int[] i = new int[] { 0 };
+        int[] i = new int[]{0};
         rnd_.ints(n, min, max).forEach(rn -> {
             res[i[0]++] = rn;
         });
@@ -225,16 +229,20 @@ public class player4 implements ContestSubmission {
             for (int w = 0; w < winners; w++) {
                 // calculate the total fitness of the tournament
                 double totalFitness = 0;
-                for (Individual candidate : tournament.keySet())
+                for (Individual candidate : tournament.keySet()) {
                     totalFitness += candidate.getFitness();
-                if (totalFitness == 0)
-                    for (int c = 0; c < winners * rounds - res.size(); c++)
+                }
+                if (totalFitness == 0) {
+                    for (int c = 0; c < winners * rounds - res.size(); c++) {
                         res.add(candidates.get(c));
+                    }
+                }
 
                 // calculate the probability for every parent to be chosen, the sum is 1.0
                 iteration = 0;
-                for (Individual candidate : tournament.keySet())
+                for (Individual candidate : tournament.keySet()) {
                     tournament.replace(candidate, candidate.getFitness() / totalFitness);
+                }
 
                 double amount = 0.0;
                 // randomize a number between 0 and 1
@@ -261,62 +269,94 @@ public class player4 implements ContestSubmission {
     private List<Individual> topIndividual(int n) {
         List<Individual> top = new LinkedList<Individual>();
         Collections.sort(population);
-        for (n--; n >= 0; n--)
+        for (n--; n >= 0; n--) {
             top.add(population.get(n));
+        }
         return top;
     }
-    
-    private void slideWindow(){
-        double minFitness=0.0;
-        for(Individual ind:population)            
-            if(ind.getFitness()<minFitness)
-                minFitness=ind.getFitness();
-        for(Individual ind:population)            
-            ind.fitness-=minFitness;
-    }
-    
-    private void ageing(){
-        for(Individual ind:population)            
-            ind.fitness-=ageingFactor;
-    }
-    
-    private double[][] distanceMatrix(){
-        double[][] matrix=new double[populationSize][populationSize];
-        Iterator<Individual> c1=population.iterator();
-        while(c1.hasNext()){
-            Individual ch1=c1.next();
-            Iterator<Individual> c2=population.iterator();
-            while(c2.hasNext()){
-                Individual ch2=c2.next();
-                matrix[ch1.position][ch2.position]=ch1.distance(ch2);
+
+    private void slideWindow() {
+        double minFitness = 0.0;
+        for (Individual ind : population) {
+            if (ind.getFitness() < minFitness) {
+                minFitness = ind.getFitness();
             }
-            
+        }
+        for (Individual ind : population) {
+            ind.fitness -= minFitness;
+        }
+    }
+
+    private void ageing() {
+        for (Individual ind : population) {
+            ind.fitness -= ageingFactor;
+        }
+    }
+
+    private double[][] distanceMatrix() {
+        double[][] matrix = new double[populationSize][populationSize];
+        Iterator<Individual> c1 = population.iterator();
+        while (c1.hasNext()) {
+            Individual ch1 = c1.next();
+            Iterator<Individual> c2 = population.iterator();
+            while (c2.hasNext()) {
+                Individual ch2 = c2.next();
+                matrix[ch1.position][ch2.position] = ch1.distance(ch2);
+            }
+
         }
         return matrix;
-    
-    }     
-    
-   
+
+    }
+
+    private void freeCluster() {
+        List<Cluster> c = new LinkedList<Cluster>();
+        for (Individual i : population) {
+            c.add(new Cluster(i));
+        }
+        while (true /*Conditions to add*/) {
+            double minDist = 0;
+            Cluster min1 = null, min2 = null;
+            for (Cluster c1 : c) {
+                for (Cluster c2 : c) {
+                    double tmp = c1.averageDistance(c2);
+                    if (tmp != 0 && tmp < minDist) {
+                        minDist = tmp;
+                        min1 = c1;
+                        min2 = c2;
+                    }
+                }
+            }
+            c.remove(min2);
+            for (Individual i : min2.components) {
+                min1.components.add(i);
+            }
+        }
+
+    }
+
     public void run() {
         // Run your algorithm here
         int evals = 0;
         while (true) {
-            int individualPosition=0;
-            if(ageing)
+            int individualPosition = 0;
+            if (ageing) {
                 ageing();
+            }
             List<Individual> offspring = new LinkedList<Individual>();
             for (int i = 0; i < populationSize; i++) {
                 List<Individual> parents = tournament(tournamentSize, 3, 1);
-                Individual child = crossover(parents, crossoverPoints,individualPosition++);
-                if (rnd_.nextDouble() < mutationRate){
-                    offspring.add(new Individual(child.points,individualPosition++));
+                Individual child = crossover(parents, crossoverPoints, individualPosition++);
+                if (rnd_.nextDouble() < mutationRate) {
+                    offspring.add(new Individual(child.points, individualPosition++));
                     child.mutateFromNormal(mutationVariability);
                 }
                 offspring.add(child);
             }
-            population=new LinkedList<Individual>();
-            for (Individual c : offspring)
+            population = new LinkedList<Individual>();
+            for (Individual c : offspring) {
                 population.add(c);
+            }
             /*
             for (Individual c : offspring)
                 population.add(c);
@@ -324,10 +364,9 @@ public class player4 implements ContestSubmission {
             List<Individual> tmp = topIndividual(elitismElements);
             population = (LinkedList<Individual>) tournament(tournamentSize, 1, populationSize - elitismElements);
             population.addAll(tmp);
-            */
+             */
         }
 
     }
-    
-    
+
 }
