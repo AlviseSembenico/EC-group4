@@ -33,6 +33,7 @@ public class player4 implements ContestSubmission {
     private boolean ageing=false;
     private int elitismElements = 0;
     private double ageingFactor=0.3;
+    private double clusterRadius=3.0;
 
     /**
      * Initialize the popoulation randomly
@@ -40,7 +41,7 @@ public class player4 implements ContestSubmission {
     private void populationInitialization() {
         population = new LinkedList<Individual>();
         for (int j = 0; j < populationSize; j++) {
-            population.add(new Individual());
+            population.add(new Individual(j));
         }
     }
 
@@ -108,7 +109,7 @@ public class player4 implements ContestSubmission {
     /**
      * t Crossover with crossover point in the middle
      */
-    private Individual crossover(List<Individual> parents, int numPoints) {
+    private Individual crossover(List<Individual> parents, int numPoints,int position) {
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         List<Integer> crossovers = new LinkedList<Integer>();
@@ -139,7 +140,7 @@ public class player4 implements ContestSubmission {
             }
             newChild[i] = currentParent.points[i];
         }
-        return new Individual(newChild);
+        return new Individual(newChild,position);
     }
 
     public void setSeed(long seed) {
@@ -257,13 +258,6 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
-    private double distance(Individual ch1, Individual ch2) {
-        double res = 0.0;
-        for (int i = 0; i < ch1.points.length; i++)
-            res += Math.pow(ch1.points[i] + ch2.points[i], 2);
-        return Math.sqrt(res);
-    }
-
     private List<Individual> topIndividual(int n) {
         List<Individual> top = new LinkedList<Individual>();
         Collections.sort(population);
@@ -286,18 +280,36 @@ public class player4 implements ContestSubmission {
             ind.fitness-=ageingFactor;
     }
     
+    private double[][] distanceMatrix(){
+        double[][] matrix=new double[populationSize][populationSize];
+        Iterator<Individual> c1=population.iterator();
+        while(c1.hasNext()){
+            Individual ch1=c1.next();
+            Iterator<Individual> c2=population.iterator();
+            while(c2.hasNext()){
+                Individual ch2=c2.next();
+                matrix[ch1.position][ch2.position]=ch1.distance(ch2);
+            }
+            
+        }
+        return matrix;
+    
+    }     
+    
+    
     public void run() {
         // Run your algorithm here
         int evals = 0;
         while (true) {
+            int individualPosition=0;
             if(ageing)
                 ageing();
             List<Individual> offspring = new LinkedList<Individual>();
             for (int i = 0; i < populationSize; i++) {
                 List<Individual> parents = tournament(tournamentSize, 3, 1);
-                Individual child = crossover(parents, crossoverPoints);
+                Individual child = crossover(parents, crossoverPoints,individualPosition++);
                 if (rnd_.nextDouble() < mutationRate){
-                    offspring.add(new Individual(child.points));
+                    offspring.add(new Individual(child.points,individualPosition++));
                     child.mutateFromNormal(mutationVariability);
                 }
                 offspring.add(child);
@@ -316,4 +328,6 @@ public class player4 implements ContestSubmission {
         }
 
     }
+    
+    
 }

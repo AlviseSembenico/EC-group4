@@ -24,12 +24,20 @@ class Individual implements Comparable {
     static int nDimension;
     public double adaptiveStep;
     public double coordinateStep;
+    public final int position;
 
     @Override
     public int compareTo(Object t) {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
+    public double distance(Individual ch1) {
+        double res = 0.0;
+        for (int i = 0; i < ch1.points.length; i++)
+            res += Math.pow(ch1.points[i] - this.points[i], 2);
+        return Math.sqrt(res);
+    }
+    
     public double evaluate(Object c) {
         if (nEval == totEval) {
             System.out.println("Score:" + maxValue);
@@ -59,12 +67,13 @@ class Individual implements Comparable {
         // return (double)rnd_.nextDouble()*rnd_.nextInt(8);
     }
 
-    public Individual(double[] points) {
-        this();
+    public Individual(double[] points,int position) {
+        this(position);
         this.points=points;
     }
 
-    public Individual() {
+    public Individual(int position) {
+        this.position=position;
         this.points = new double[10];
         for (int i = 0; i < 10; i++) {
             this.points[i] = rnd_.nextDouble() * 10 - 5;
