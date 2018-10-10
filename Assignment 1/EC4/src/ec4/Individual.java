@@ -29,6 +29,7 @@ class Individual implements Comparable {
     public double adaptiveStep;
     public double coordinateStep;
     public double distanceNeighbors=0.5;
+    public int nNeighbors=5;
     
 
     @Override
@@ -106,11 +107,7 @@ class Individual implements Comparable {
     }
     
     private void mutateStepSizeVector(){
-        List<Individual> a=getNeighbors(distanceNeighbors);
-        while(a.size()==0){
-            distanceNeighbors+=0.1;
-            a=getNeighbors(distanceNeighbors);
-        }
+        List<Individual> a=getNNeighbors(nNeighbors);
         Collections.sort(a);
         Individual top=a.get(0);
         if(top.getFitness()>getFitness())
@@ -165,6 +162,12 @@ class Individual implements Comparable {
         for (int i = 0; i < ch1.points.length; i++)
             res += Math.pow(ch1.points[i] - this.points[i], 2);
         return Math.sqrt(res);
+    }
+    
+    public List<Individual> getNNeighbors(int n){
+        List<Individual> res=getNeighbors(10000);
+        Collections.sort(res);
+        return new LinkedList<Individual>(res.subList(0,n));
     }
     
     public List<Individual> getNeighbors(double dist){

@@ -295,7 +295,7 @@ public class player4 implements ContestSubmission {
                 Individual child = crossover(parents, crossoverPoints);
                 if (rnd_.nextDouble() < mutationRate){
                     offspring.add(new Individual(child.points));
-                    child.mutateFromNormalVector(mutationVariability);
+                    child.mutate(mutationVariability);
                 }
                 offspring.add(child);
             }
@@ -303,11 +303,12 @@ public class player4 implements ContestSubmission {
             for (Individual c : offspring)
                 population.add(c);
             
+            /*
             for (Individual c : population)
                 for (Individual c1 : population)
                     System.out.println(c.distance(c1)+" ");
             System.out.println("-------");
-            
+            */
             
             /*
             for (Individual c : offspring)
