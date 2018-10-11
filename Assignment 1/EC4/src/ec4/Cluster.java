@@ -15,6 +15,7 @@ import java.util.List;
 public class Cluster {
     public List<Individual> components;
     public List<Double> fitnessHistory;
+    private boolean newGen=true;
     
     public Cluster(){
         components=new LinkedList<Individual>();
@@ -36,6 +37,34 @@ public class Cluster {
         mean/=components.size();
         fitnessHistory.add(mean);
         return mean;
+    }
+    
+    public int populationSizeTh(){
+        //to implement more smart
+        return components.size();
+    }
+    
+    public boolean contains(Individual i,double radius){
+        if(i.distance(new Individual(gravityCenter(), -1))<radius)
+            return true;
+        return false;
+    }
+    
+    public void newGeneration(List<Individual> l){
+        this.components=l;
+        newGen=true;
+    }
+    
+    public double[] gravityCenter(){
+        double[] res=new double[Individual.nDimension];
+        for(int i=0;i<Individual.nDimension;i++){
+            double tot=0;
+            for(Individual ind:components)
+                tot+=ind.points[i];
+            tot/=Individual.nDimension;
+            res[i]=tot;
+        }
+        return res;
     }
     
     public double fitnessVariance(){

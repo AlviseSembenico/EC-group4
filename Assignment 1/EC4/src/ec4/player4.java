@@ -208,9 +208,9 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
-    private List<Individual> tournament(int tournamentSize, int winners, int rounds) {
+    private List<Individual> tournament(LinkedList<Individual> source, int tournamentSize, int winners, int rounds) {
         List<Individual> res = new LinkedList<Individual>();
-        List<Individual> candidates = (List) population.clone();
+        List<Individual> candidates = (List) source.clone();
 
         for (int r = 0; r < rounds; r++) {
             // select randomly the index of 5 parents
@@ -306,7 +306,6 @@ public class player4 implements ContestSubmission {
 
         }
         return matrix;
-
     }
 
     private List<Cluster> freeCluster() {
@@ -314,57 +313,114 @@ public class player4 implements ContestSubmission {
         for (Individual i : population) {
             c.add(new Cluster(i));
         }
-        while (c.size()>1   ) {
+        while (c.size() > 1) {
             double minDist = Double.POSITIVE_INFINITY;;
             Cluster min1 = null, min2 = null;
             for (Cluster c1 : c) {
                 for (Cluster c2 : c) {
                     double tmp = c1.averageDistance(c2);
-                    if (tmp != 0 && tmp < minDist && c1.maxDistance(c2)<clusterRadius) {
+                    if (tmp != 0 && tmp < minDist && c1.maxDistance(c2) < clusterRadius) {
                         minDist = tmp;
                         min1 = c1;
                         min2 = c2;
                     }
                 }
             }
-            if(min1==null || min2==null) 
+            if (min1 == null || min2 == null) {
                 break;
-            c.remove(min2);
-            for (Individual i : min2.components) {
-                min1.components.add(i);
             }
+            c.remove(min2);
+            min1.components.addAll(min2.components);
         }
-        System.out.print(c.size()+" ");
-        for(Cluster cl:c)
-            System.out.print("("+cl.components.size()+","+cl.fitnessVariance()+","+cl.fitnessMean()+")");
-        System.out.println("");
+//        System.out.print(c.size() + " ");
+//        for (Cluster cl : c) {
+//            System.out.print("(" + cl.components.size() + "," + cl.fitnessVariance() + "," + cl.fitnessMean() + ")");
+//        }
+//        System.out.println("");
         return c;
+    }
+
+    public List<Individual> reproduceList(List<Individual> l, int position) {
+        List<Individual> res = new LinkedList<Individual>();
+        for (int i = 0; i < l.size(); i++) {
+
+            List<Individual> parents = tournament((LinkedList<Individual>) l, tournamentSize, 3, 1);
+            Individual child = crossover(parents, crossoverPoints, position++);
+            if (rnd_.nextDouble() < mutationRate) {
+                child.mutateFromNormal(mutationVariability);
+            }
+            res.add(child);
+        }
+        return res;
     }
 
     public void run() {
         // Run your algorithm here
         int evals = 0;
+        List<Cluster> clusters = freeCluster();
         while (true) {
             int individualPosition = 0;
-            if (ageing) {
-                ageing();
-            }
-            List<Individual> offspring = new LinkedList<Individual>();
-            for (int i = 0; i < populationSize; i++) {
-                List<Individual> parents = tournament(tournamentSize, 3, 1);
-                Individual child = crossover(parents, crossoverPoints, individualPosition++);
-                if (rnd_.nextDouble() < mutationRate) {
-                    offspring.add(new Individual(child.points, individualPosition++));
-                    child.mutateFromNormal(mutationVariability);
+//            if (ageing) {
+//                ageing();
+//            }
+
+            List<Individual> global = new LinkedList<Individual>();
+            //remove clusters with dimension 1
+            for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
+                Cluster c = iterator.next();
+                if (c.components.size() < 3) {
+                    global.addAll(c.components);
+                    iterator.remove();
                 }
-                offspring.add(child);
             }
-            population = new LinkedList<Individual>();
-            for (Individual c : offspring) {
-                population.add(c);
+
+            List<Individual> offspringCluster = new LinkedList<Individual>();
+
+            if (clusters.size() != 0) {
+                //breeding within the clusters
+                for (Cluster c : clusters) 
+                    if (c.components.size() >= 3) 
+                            offspringCluster.addAll(reproduceList(c.components, individualPosition));
+                       
+                    
+                
+                offspringCluster.addAll(reproduceList(global, individualPosition));
+                global = new LinkedList<Individual>();
+
+                for (Cluster c : clusters) {
+                    List<Individual> newGen = new LinkedList<Individual>();
+                    for (Individual i : offspringCluster) {
+                        if (c.contains(i, clusterRadius)) {
+                            newGen.add(i);
+                        }
+                    }
+                    if (newGen.size() > 1) {
+                        c.newGeneration(global);
+                    } else {
+                        global.addAll(newGen);
+                    }
+                  // System.out.print(c.fitnessMean());
+                }
+            } else {
+
+                List<Individual> offspring = new LinkedList<Individual>();
+                for (int i = 0; i < populationSize; i++) {
+                    List<Individual> parents = tournament(population, tournamentSize, 3, 1);
+                    Individual child = crossover(parents, crossoverPoints, individualPosition++);
+                    if (rnd_.nextDouble() < mutationRate) 
+                        child.mutateFromNormal(mutationVariability);
+                    
+                    offspring.add(child);
+                }
+                population = new LinkedList<Individual>();
+                for (Individual c : offspring) {
+                    population.add(c);
+                }
+                clusters = freeCluster();
             }
-            freeCluster();
+
             /*
+            ------------
             for (Individual c : offspring)
                 population.add(c);
             slideWindow();

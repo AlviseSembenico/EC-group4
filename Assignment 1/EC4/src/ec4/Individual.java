@@ -25,6 +25,7 @@ class Individual implements Comparable {
     public double adaptiveStep;
     public double coordinateStep;
     public final int position;
+    static double maxFitness=0;
 
     @Override
     public int compareTo(Object t) {
@@ -90,6 +91,11 @@ class Individual implements Comparable {
             fitness = (double) evaluate(this.points);
         }
         evaluated = true;
+        if(fitness>maxFitness){
+            maxFitness=fitness;
+            System.out.println("New max fitness found: " + fitness);
+        }
+        System.out.println(totEval);
         return fitness;
     }
 
