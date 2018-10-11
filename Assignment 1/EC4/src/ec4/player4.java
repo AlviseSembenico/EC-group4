@@ -52,7 +52,7 @@ public class player4 implements ContestSubmission {
         Properties prop = new Properties();
         InputStream input = null;
         try {
-            input = new FileInputStream("C:\\Users\\alvis\\OneDrive\\University\\UVA\\EC\\EC-group4\\Assignment 1\\EC4\\src\\properties.txt");
+            input = new FileInputStream("src/properties.txt");
             // load a properties file
             prop.load(input);
             // get the property value and print it out
