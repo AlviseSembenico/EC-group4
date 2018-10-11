@@ -25,8 +25,9 @@ public class player4 implements ContestSubmission {
     private int evaluations_limit_;
     // Population size
     private int populationSize = 100;
-    private final int F_DIMENSIONS = 10;
-    private LinkedList<Individual> population;
+    private static final int F_DIMENSIONS = 10;
+    private LinkedList<Cluster> clusters;
+    private Cluster outsideCluster;
     private double selectivePressure = 1.8;
     private int tournamentSize = 10;
     private double mutationRate = 0.1;
@@ -35,20 +36,20 @@ public class player4 implements ContestSubmission {
     private boolean ageing = false;
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
-    private double clusterRadius = 3.0;
+    private double clusterRadius = 5.0;
 
     /**
      * Initialize the popoulation randomly
      */
     private void populationInitialization() {
-        population = new LinkedList<Individual>();
+        clusters = new LinkedList<Cluster>();
+        outsideCluster = new Cluster();
         for (int j = 0; j < populationSize; j++) {
-            population.add(new Individual(j));
+            outsideCluster.addIndividual(new Individual(j));
         }
     }
 
     private void setParameters() {
-
         Properties prop = new Properties();
         InputStream input = null;
         try {
@@ -111,7 +112,7 @@ public class player4 implements ContestSubmission {
     /**
      * t Crossover with crossover point in the middle
      */
-    private Individual crossover(List<Individual> parents, int numPoints, int position) {
+    public static Individual crossover(List<Individual> parents, int numPoints, int position) {
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         List<Integer> crossovers = new LinkedList<Integer>();
@@ -174,30 +175,13 @@ public class player4 implements ContestSubmission {
         }
     }
 
-    private double sumFitness() {
-        double total = 0.0;
-        for (Individual individual : population) {
-            total += individual.getFitness();
-        }
-        return total;
-    }
-
-    /**
-     * @param position order of arrival of the parent within the tournament
-     * @param u        the dimension of the tournament
-     * @return the probability for the parent to be chosen
-     */
-    private double linearRanking(int position, int u) {
-        return ((2 - selectivePressure) / u) + ((2 * position * (selectivePressure - 1)) / (u * (u - 1)));
-    }
-
     /**
      * @param n   # of random number generated
      * @param min min for every number
      * @param max max for every number
      * @return n integer random number between min and max
      */
-    private int[] random(int n, int min, int max) {
+    public static int[] random(int n, int min, int max) {
         int[] res = new int[n];
         int[] i = new int[]{0};
         rnd_.ints(n, min, max).forEach(rn -> {
@@ -206,173 +190,62 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
-    private List<Individual> tournament(int tournamentSize, int winners, int rounds) {
-        List<Individual> res = new LinkedList<Individual>();
-        List<Individual> candidates = (List) population.clone();
-
-        for (int r = 0; r < rounds; r++) {
-            // select randomly the index of 5 parents
-            List<Integer> parents = IntStream.of(random(tournamentSize, 0, candidates.size() - 1)).boxed()
-                    .collect(Collectors.toList());
-
-            HashMap<Individual, Double> tournament = new HashMap<Individual, Double>();
-            Collections.sort(parents);
-
-            // add all selected parents to tournament
-            int iteration = 0;
-            parents.forEach(p -> {
-                tournament.put(candidates.get(p), 0.0);
-            });
-
-            for (int w = 0; w < winners; w++) {
-                // calculate the total fitness of the tournament
-                double totalFitness = 0;
-                for (Individual candidate : tournament.keySet()) {
-                    totalFitness += candidate.getFitness();
-                }
-                if (totalFitness == 0) {
-                    for (int c = 0; c < winners * rounds - res.size(); c++) {
-                        res.add(candidates.get(c));
-                    }
-                }
-
-                // calculate the probability for every parent to be chosen, the sum is 1.0
-                iteration = 0;
-                for (Individual candidate : tournament.keySet()) {
-                    tournament.replace(candidate, candidate.getFitness() / totalFitness);
-                }
-
-                double amount = 0.0;
-                // randomize a number between 0 and 1
-                double extract = rnd_.nextDouble();
-                for (Individual element : tournament.keySet()) {
-                    amount += tournament.get(element);
-                    if (extract <= amount) {
-                        // add the winner to the outcome
-                        res.add(element);
-                        // remove the winner for next round within the same tournament
-                        tournament.remove(element, tournament.get(element));
-                        // remove also to general candidates
-                        candidates.remove(element);
-                        break;
-                    }
-                }
-
-            }
-        }
-
-        return res;
-    }
-
-    private List<Individual> topIndividual(int n) {
-        List<Individual> top = new LinkedList<Individual>();
-        Collections.sort(population);
-        for (n--; n >= 0; n--) {
-            top.add(population.get(n));
-        }
-        return top;
-    }
-
-    private void slideWindow() {
-        double minFitness = 0.0;
-        for (Individual ind : population) {
-            if (ind.getFitness() < minFitness) {
-                minFitness = ind.getFitness();
-            }
-        }
-        for (Individual ind : population) {
-            ind.fitness -= minFitness;
-        }
-    }
-
-    private void ageing() {
-        for (Individual ind : population) {
-            ind.fitness -= ageingFactor;
-        }
-    }
-
-    private double[][] distanceMatrix() {
-        double[][] matrix = new double[populationSize][populationSize];
-        Iterator<Individual> c1 = population.iterator();
-        while (c1.hasNext()) {
-            Individual ch1 = c1.next();
-            Iterator<Individual> c2 = population.iterator();
-            while (c2.hasNext()) {
-                Individual ch2 = c2.next();
-                matrix[ch1.position][ch2.position] = ch1.distance(ch2);
-            }
-
-        }
-        return matrix;
-
-    }
-
-    private List<Cluster> freeCluster() {
-        List<Cluster> c = new LinkedList<Cluster>();
-        for (Individual i : population) {
-            c.add(new Cluster(i));
-        }
-        while (c.size() > 1) {
-            double minDist = Double.POSITIVE_INFINITY;
-            ;
-            Cluster min1 = null, min2 = null;
-            for (Cluster c1 : c) {
-                for (Cluster c2 : c) {
-                    double tmp = c1.averageDistance(c2);
-                    if (tmp != 0 && tmp < minDist && c1.maxDistance(c2) < clusterRadius) {
-                        minDist = tmp;
-                        min1 = c1;
-                        min2 = c2;
-                    }
+    private void checkClusters() {
+        for (Cluster c : clusters) {
+            for (Individual i : outsideCluster.components) {
+                if (c.averageDistance(i) < clusterRadius) {
+                    c.addIndividual(i);
+                    outsideCluster.removeIndividual(i);
+                    System.out.println("added individual to cluster");
+                    break;
                 }
             }
-            if (min1 == null || min2 == null)
-                break;
-            c.remove(min2);
-            for (Individual i : min2.components) {
-                min1.components.add(i);
+        }
+
+        outerloop:
+        for (Individual i : outsideCluster.components) {
+            for (Individual j : outsideCluster.components) {
+                if (i.distance(j) < clusterRadius) {
+                    Cluster c = new Cluster();
+                    c.addIndividual(i);
+                    c.addIndividual(j);
+                    outsideCluster.removeIndividual(i);
+                    outsideCluster.removeIndividual(j);
+                    clusters.add(c);
+                    System.out.println("created new cluster from two individuals");
+                    break outerloop;
+                }
             }
         }
-        System.out.print(c.size() + " ");
-        for (Cluster cl : c)
-            System.out.print("(" + cl.components.size() + "," + cl.fitnessVariance() + "," + cl.fitnessMean() + ")");
-        System.out.println("");
-        return c;
+
+        Cluster fc1 = null, fc2 = null;
+        for (Cluster c1 : clusters) {
+            for (Cluster c2 : clusters) {
+                if (c1 != c2 && c1.averageDistance(c2) < clusterRadius) {
+                    fc1 = c1;
+                    fc2 = c2;
+                }
+            }
+        }
+        if (fc1 != null) {
+            fc1.merge(fc2);
+            clusters.remove(fc2);
+            System.out.println("merged two clusters: " + clusters.size() + " clusters now");
+        } else {
+            System.out.println("nothing merged: " + clusters.size() + " clusters");
+        }
     }
 
     public void run() {
         // Run your algorithm here
         int evals = 0;
         while (true) {
-            int individualPosition = 0;
-            if (ageing) {
-                ageing();
+            outsideCluster.iterate();
+            checkClusters();
+            for (Cluster c : clusters) {
+                c.iterate();
             }
-            List<Individual> offspring = new LinkedList<Individual>();
-            for (int i = 0; i < populationSize; i++) {
-                List<Individual> parents = tournament(tournamentSize, 3, 1);
-                Individual child = crossover(parents, crossoverPoints, individualPosition++);
-                if (rnd_.nextDouble() < mutationRate) {
-                    offspring.add(new Individual(child.points, individualPosition++));
-                    child.mutateFromNormal(mutationVariability);
-                }
-                offspring.add(child);
-            }
-            population = new LinkedList<Individual>();
-            for (Individual c : offspring) {
-                population.add(c);
-            }
-            freeCluster();
-            /*
-            for (Individual c : offspring)
-                population.add(c);
-            slideWindow();
-            List<Individual> tmp = topIndividual(elitismElements);
-            population = (LinkedList<Individual>) tournament(tournamentSize, 1, populationSize - elitismElements);
-            population.addAll(tmp);
-             */
         }
-
     }
 
 }

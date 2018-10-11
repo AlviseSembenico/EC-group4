@@ -16,7 +16,7 @@ class Individual implements Comparable {
     public double[] points;
     public double fitness;
     private boolean evaluated = false;
-    Random rnd_ = new Random();
+    Random rnd_;
     public double[] stepSize;
     static ContestEvaluation f = null;
     static double maxValue = 0;
@@ -74,6 +74,7 @@ class Individual implements Comparable {
     }
 
     public Individual(int position) {
+        this.rnd_ = player4.rnd_;
         this.position = position;
         this.points = new double[10];
         for (int i = 0; i < 10; i++) {
