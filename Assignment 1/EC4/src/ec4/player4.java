@@ -314,7 +314,7 @@ public class player4 implements ContestSubmission {
         for (Individual i : population) {
             c.add(new Cluster(i));
         }
-        while (c.size()>1 /*Conditions to add*/) {
+        while (c.size()>1   ) {
             double minDist = Double.POSITIVE_INFINITY;;
             Cluster min1 = null, min2 = null;
             for (Cluster c1 : c) {
@@ -334,7 +334,10 @@ public class player4 implements ContestSubmission {
                 min1.components.add(i);
             }
         }
-        System.out.println(c.size());
+        System.out.print(c.size()+" ");
+        for(Cluster cl:c)
+            System.out.print("("+cl.components.size()+","+cl.fitnessVariance()+","+cl.fitnessMean()+")");
+        System.out.println("");
         return c;
     }
 

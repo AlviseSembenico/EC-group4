@@ -14,9 +14,11 @@ import java.util.List;
  */
 public class Cluster {
     public List<Individual> components;
+    public List<Double> fitnessHistory;
     
     public Cluster(){
         components=new LinkedList<Individual>();
+        fitnessHistory=new LinkedList<Double>();
     }
     public Cluster(List<Individual> l){
         components=l;
@@ -24,6 +26,27 @@ public class Cluster {
     public Cluster(Individual i){
         this();
         components.add(i);
+    }
+    
+    public double fitnessMean(){
+        double mean=0;
+        for(Individual i:components)
+            mean+=i.getFitness();
+        
+        mean/=components.size();
+        fitnessHistory.add(mean);
+        return mean;
+    }
+    
+    public double fitnessVariance(){
+        double tot=0;
+        double mean=fitnessMean();
+        for(Individual i:components)
+            tot+=Math.pow(i.getFitness()-mean,2);
+        
+        tot/=components.size();
+        tot=Math.sqrt(mean);
+        return tot;
     }
     
     public double radius(){
