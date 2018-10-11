@@ -309,30 +309,33 @@ public class player4 implements ContestSubmission {
 
     }
 
-    private void freeCluster() {
+    private List<Cluster> freeCluster() {
         List<Cluster> c = new LinkedList<Cluster>();
         for (Individual i : population) {
             c.add(new Cluster(i));
         }
-        while (true /*Conditions to add*/) {
-            double minDist = 0;
+        while (c.size()>1 /*Conditions to add*/) {
+            double minDist = Double.POSITIVE_INFINITY;;
             Cluster min1 = null, min2 = null;
             for (Cluster c1 : c) {
                 for (Cluster c2 : c) {
                     double tmp = c1.averageDistance(c2);
-                    if (tmp != 0 && tmp < minDist) {
+                    if (tmp != 0 && tmp < minDist && c1.maxDistance(c2)<clusterRadius) {
                         minDist = tmp;
                         min1 = c1;
                         min2 = c2;
                     }
                 }
             }
+            if(min1==null || min2==null) 
+                break;
             c.remove(min2);
             for (Individual i : min2.components) {
                 min1.components.add(i);
             }
         }
-
+        System.out.println(c.size());
+        return c;
     }
 
     public void run() {
@@ -357,6 +360,7 @@ public class player4 implements ContestSubmission {
             for (Individual c : offspring) {
                 population.add(c);
             }
+            freeCluster();
             /*
             for (Individual c : offspring)
                 population.add(c);

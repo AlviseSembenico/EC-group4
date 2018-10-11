@@ -26,6 +26,32 @@ public class Cluster {
         components.add(i);
     }
     
+    public double radius(){
+        double max=0;
+        for(Individual i:components)
+            for(Individual j:components){
+                double dist=i.distance(j);
+                if(dist>max)
+                    max=dist;
+            }
+        return max;
+    }
+    
+    public double maxDistance(Cluster cl){
+        if(this==cl)
+            return 0;
+        double max=0;
+        for(Individual i:components)
+            for(Individual j:cl.components){
+            double dist=i.distance(j);
+                if(dist>max)
+                    max=dist;
+            }
+        if(components.size()+cl.components.size()==0)
+            return 0;
+        return max;
+    }
+    
     public double averageDistance(Cluster cl){
         if(this==cl)
             return 0;
@@ -37,8 +63,6 @@ public class Cluster {
             return 0;
         return tot/(components.size()+cl.components.size());
     }
-    
-    
     
     public void addIndividual(Individual i){
         components.add(i);
