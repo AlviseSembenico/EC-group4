@@ -36,6 +36,7 @@ public class player4 implements ContestSubmission {
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
     private double clusterRadius = 3.0;
+    private int limitClusterPop=5;
 
     /**
      * Initialize the popoulation randomly
@@ -340,9 +341,12 @@ public class player4 implements ContestSubmission {
         return c;
     }
 
-    public List<Individual> reproduceList(List<Individual> l, int position) {
+    public List<Individual> reproduceList(List<Individual> l, int children,int position) {
+        if(children==0 || children>l.size())
+            children=l.size();
+        
         List<Individual> res = new LinkedList<Individual>();
-        for (int i = 0; i < l.size(); i++) {
+        for (int i = 0; i < children; i++) {
 
             List<Individual> parents = tournament((LinkedList<Individual>) l, tournamentSize, 3, 1);
             Individual child = crossover(parents, crossoverPoints, position++);
@@ -358,13 +362,10 @@ public class player4 implements ContestSubmission {
         // Run your algorithm here
         int evals = 0;
         List<Cluster> clusters = freeCluster();
+        
+        List<Individual> global = new LinkedList<Individual>();
         while (true) {
             int individualPosition = 0;
-//            if (ageing) {
-//                ageing();
-//            }
-
-            List<Individual> global = new LinkedList<Individual>();
             //remove clusters with dimension 1
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
                 Cluster c = iterator.next();
@@ -380,11 +381,11 @@ public class player4 implements ContestSubmission {
                 //breeding within the clusters
                 for (Cluster c : clusters) 
                     if (c.components.size() >= 3) 
-                            offspringCluster.addAll(reproduceList(c.components, individualPosition));
+                            offspringCluster.addAll(reproduceList(c.components, limitClusterPop, individualPosition));
                        
                     
                 
-                offspringCluster.addAll(reproduceList(global, individualPosition));
+                offspringCluster.addAll(reproduceList(global,0, individualPosition));
                 global = new LinkedList<Individual>();
 
                 for (Cluster c : clusters) {
@@ -395,12 +396,12 @@ public class player4 implements ContestSubmission {
                         }
                     }
                     if (newGen.size() > 1) {
-                        c.newGeneration(global);
-                    } else {
-                        global.addAll(newGen);
+                        offspringCluster.removeAll(newGen);
+                        c.newGeneration(newGen);
                     }
                   // System.out.print(c.fitnessMean());
                 }
+                global=offspringCluster;
             } else {
 
                 List<Individual> offspring = new LinkedList<Individual>();

@@ -95,7 +95,6 @@ class Individual implements Comparable {
             maxFitness=fitness;
             System.out.println("New max fitness found: " + fitness);
         }
-        System.out.println(totEval);
         return fitness;
     }
 
