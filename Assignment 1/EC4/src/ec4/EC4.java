@@ -6,7 +6,6 @@
 package ec4;
 
 /**
- *
  * @author alvis
  */
 public class EC4 {
@@ -15,8 +14,8 @@ public class EC4 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+
         new player4().run();
     }
-    
+
 }

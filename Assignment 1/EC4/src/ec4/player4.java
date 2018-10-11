@@ -183,9 +183,8 @@ public class player4 implements ContestSubmission {
     }
 
     /**
-     *
      * @param position order of arrival of the parent within the tournament
-     * @param u the dimension of the tournament
+     * @param u        the dimension of the tournament
      * @return the probability for the parent to be chosen
      */
     private double linearRanking(int position, int u) {
@@ -193,8 +192,7 @@ public class player4 implements ContestSubmission {
     }
 
     /**
-     *
-     * @param n # of random number generated
+     * @param n   # of random number generated
      * @param min min for every number
      * @param max max for every number
      * @return n integer random number between min and max
@@ -314,29 +312,30 @@ public class player4 implements ContestSubmission {
         for (Individual i : population) {
             c.add(new Cluster(i));
         }
-        while (c.size()>1   ) {
-            double minDist = Double.POSITIVE_INFINITY;;
+        while (c.size() > 1) {
+            double minDist = Double.POSITIVE_INFINITY;
+            ;
             Cluster min1 = null, min2 = null;
             for (Cluster c1 : c) {
                 for (Cluster c2 : c) {
                     double tmp = c1.averageDistance(c2);
-                    if (tmp != 0 && tmp < minDist && c1.maxDistance(c2)<clusterRadius) {
+                    if (tmp != 0 && tmp < minDist && c1.maxDistance(c2) < clusterRadius) {
                         minDist = tmp;
                         min1 = c1;
                         min2 = c2;
                     }
                 }
             }
-            if(min1==null || min2==null) 
+            if (min1 == null || min2 == null)
                 break;
             c.remove(min2);
             for (Individual i : min2.components) {
                 min1.components.add(i);
             }
         }
-        System.out.print(c.size()+" ");
-        for(Cluster cl:c)
-            System.out.print("("+cl.components.size()+","+cl.fitnessVariance()+","+cl.fitnessMean()+")");
+        System.out.print(c.size() + " ");
+        for (Cluster cl : c)
+            System.out.print("(" + cl.components.size() + "," + cl.fitnessVariance() + "," + cl.fitnessMean() + ")");
         System.out.println("");
         return c;
     }
