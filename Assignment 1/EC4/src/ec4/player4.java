@@ -232,7 +232,7 @@ public class player4 implements ContestSubmission {
             clusters.remove(fc2);
             System.out.println("merged two clusters: " + clusters.size() + " clusters now");
         } else {
-            System.out.println("nothing merged: " + clusters.size() + " clusters");
+//            System.out.println("nothing merged: " + clusters.size() + " clusters");
         }
     }
 
