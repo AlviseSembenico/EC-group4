@@ -39,7 +39,12 @@ class Individual implements Comparable {
         return Math.sqrt(res);
     }
     
+    public double distance(double [] ch1){
+        return distance(new Individual(ch1,-1));
+    }
+    
     public double evaluate(Object c) {
+        //System.out.println(totEval);
         if (nEval == totEval) {
             System.out.println("Score:" + maxValue);
             String.valueOf(null);
@@ -93,7 +98,7 @@ class Individual implements Comparable {
         evaluated = true;
         if(fitness>maxFitness){
             maxFitness=fitness;
-            System.out.println("New max fitness found: " + fitness);
+            //System.out.println("New max fitness found: " + fitness);
         }
         return fitness;
     }

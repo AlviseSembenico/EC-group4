@@ -28,15 +28,15 @@ public class player4 implements ContestSubmission {
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
     private double selectivePressure = 1.8;
-    private int tournamentSize = 10;
+    private int tournamentSize = 5;
     private double mutationRate = 0.1;
     private double mutationVariability = 0.8;
-    private int crossoverPoints = 2;
+    private int crossoverPoints = 3;
     private boolean ageing = false;
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
     private double clusterRadius = 3.0;
-    private int limitClusterPop=5;
+    private int limitClusterPop = 10;
 
     /**
      * Initialize the popoulation randomly
@@ -200,7 +200,7 @@ public class player4 implements ContestSubmission {
      * @param max max for every number
      * @return n integer random number between min and max
      */
-    private int[] random(int n, int min, int max) {
+    private static int[] random(int n, int min, int max) {
         int[] res = new int[n];
         int[] i = new int[]{0};
         rnd_.ints(n, min, max).forEach(rn -> {
@@ -309,7 +309,7 @@ public class player4 implements ContestSubmission {
         return matrix;
     }
 
-    private List<Cluster> freeCluster() {
+    private List<Cluster> agglomerativeClustering() {
         List<Cluster> c = new LinkedList<Cluster>();
         for (Individual i : population) {
             c.add(new Cluster(i));
@@ -341,10 +341,11 @@ public class player4 implements ContestSubmission {
         return c;
     }
 
-    public List<Individual> reproduceList(List<Individual> l, int children,int position) {
-        if(children==0 || children>l.size())
-            children=l.size();
-        
+    public List<Individual> reproduceList(List<Individual> l, int children, int position) {
+        if (children == 0 || children > l.size()) {
+            children = l.size();
+        }
+
         List<Individual> res = new LinkedList<Individual>();
         for (int i = 0; i < children; i++) {
 
@@ -360,11 +361,11 @@ public class player4 implements ContestSubmission {
 
     public void run() {
         // Run your algorithm here
-        int evals = 0;
-        List<Cluster> clusters = freeCluster();
-        
+        int iter = 0;
         List<Individual> global = new LinkedList<Individual>();
         while (true) {
+            
+            List<Cluster> clusters = agglomerativeClustering();
             int individualPosition = 0;
             //remove clusters with dimension 1
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
@@ -377,60 +378,37 @@ public class player4 implements ContestSubmission {
 
             List<Individual> offspringCluster = new LinkedList<Individual>();
 
-            if (clusters.size() != 0) {
+                //System.out.println(population.size());
                 //breeding within the clusters
-                for (Cluster c : clusters) 
+                for (Cluster c : clusters) {
+                    //purging of the population surplus 
+                    global.addAll(c.purgeMax(limitClusterPop));
                     if (c.components.size() >= 3) 
-                            offspringCluster.addAll(reproduceList(c.components, limitClusterPop, individualPosition));
-                       
-                    
+                        //reproduction of the components of the cluster
+                        offspringCluster.addAll(reproduceList(c.components, limitClusterPop, individualPosition));
+                }
+                //reproduction of the individuals that do not belog to any cluster
+                offspringCluster.addAll(reproduceList(global, 0, individualPosition));
+               
+                if (offspringCluster.size() != populationSize) 
+                    offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
                 
-                offspringCluster.addAll(reproduceList(global,0, individualPosition));
+                population = (LinkedList<Individual>) offspringCluster;
                 global = new LinkedList<Individual>();
 
+                //classification of the offspring, trying to add them to one cluster
                 for (Cluster c : clusters) {
                     List<Individual> newGen = new LinkedList<Individual>();
-                    for (Individual i : offspringCluster) {
-                        if (c.contains(i, clusterRadius)) {
+                    for (Individual i : offspringCluster) 
+                        if (c.contains(i, clusterRadius))
                             newGen.add(i);
-                        }
-                    }
-                    if (newGen.size() > 1) {
-                        offspringCluster.removeAll(newGen);
-                        c.newGeneration(newGen);
-                    }
-                  // System.out.print(c.fitnessMean());
-                }
-                global=offspringCluster;
-            } else {
-
-                List<Individual> offspring = new LinkedList<Individual>();
-                for (int i = 0; i < populationSize; i++) {
-                    List<Individual> parents = tournament(population, tournamentSize, 3, 1);
-                    Individual child = crossover(parents, crossoverPoints, individualPosition++);
-                    if (rnd_.nextDouble() < mutationRate) 
-                        child.mutateFromNormal(mutationVariability);
+                    //if (newGen.size() > 1) 
+                    //    offspringCluster.removeAll(newGen);
                     
-                    offspring.add(child);
+                    c.newGeneration(newGen);
                 }
-                population = new LinkedList<Individual>();
-                for (Individual c : offspring) {
-                    population.add(c);
-                }
-                clusters = freeCluster();
-            }
-
-            /*
-            ------------
-            for (Individual c : offspring)
-                population.add(c);
-            slideWindow();
-            List<Individual> tmp = topIndividual(elitismElements);
-            population = (LinkedList<Individual>) tournament(tournamentSize, 1, populationSize - elitismElements);
-            population.addAll(tmp);
-             */
+            iter++;
         }
-
     }
 
 }

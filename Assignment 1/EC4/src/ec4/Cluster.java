@@ -38,6 +38,22 @@ public class Cluster {
         fitnessHistory.add(mean);
         return mean;
     }
+    public List<Individual> purgeMax(int n){
+        return purge(components.size()-n);
+    }
+    
+    public List<Individual> purge(int n){
+        List<Individual> res=new LinkedList<Individual>();
+        for(int j=0;j<n;j++){
+            Individual m=components.get(0);
+            for(Individual i:components)
+                if(i.distance(gravityCenter())>m.distance(gravityCenter()))
+                    m=i;
+            res.add(m);
+            components.remove(m);
+        }
+        return res;
+    }
     
     public int populationSizeTh(){
         //to implement more smart
@@ -45,7 +61,7 @@ public class Cluster {
     }
     
     public boolean contains(Individual i,double radius){
-        if(i.distance(new Individual(gravityCenter(), -1))<radius)
+        if(i.distance(gravityCenter())<radius)
             return true;
         return false;
     }
