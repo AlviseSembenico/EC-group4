@@ -45,7 +45,7 @@ public class player4 implements ContestSubmission {
         clusters = new LinkedList<Cluster>();
         outsideCluster = new Cluster();
         for (int j = 0; j < populationSize; j++) {
-            outsideCluster.addIndividual(new Individual(j));
+            outsideCluster.addIndividual(new Individual());
         }
     }
 
@@ -84,6 +84,7 @@ public class player4 implements ContestSubmission {
     public player4() {
         rnd_ = new Random();
         Individual.nDimension = 10;
+        Individual.rnd_ = rnd_;
         populationInitialization();
         setParameters();
     }
@@ -112,7 +113,7 @@ public class player4 implements ContestSubmission {
     /**
      * t Crossover with crossover point in the middle
      */
-    public static Individual crossover(List<Individual> parents, int numPoints, int position) {
+    public static Individual crossover(List<Individual> parents, int numPoints) {
         // Using 3 parents, make a 3 point crossover
         // Choose the 3 points
         List<Integer> crossovers = new LinkedList<Integer>();
@@ -145,7 +146,7 @@ public class player4 implements ContestSubmission {
             }
             newChild[i] = currentParent.points[i];
         }
-        return new Individual(newChild, position);
+        return new Individual(newChild);
     }
 
     public void setSeed(long seed) {
@@ -192,12 +193,13 @@ public class player4 implements ContestSubmission {
 
     private void checkClusters() {
         for (Cluster c : clusters) {
-            for (Individual i : outsideCluster.components) {
+            Individual i = null;
+            for (Iterator<Individual> iter = outsideCluster.components.iterator(); iter.hasNext(); ) {
+                i = iter.next();
                 if (c.averageDistance(i) < clusterRadius) {
                     c.addIndividual(i);
-                    outsideCluster.removeIndividual(i);
+                    iter.remove();
                     System.out.println("added individual to cluster");
-                    break;
                 }
             }
         }
@@ -242,7 +244,9 @@ public class player4 implements ContestSubmission {
 
         int evals = 0;
         while (true) {
-            outsideCluster.iterate();
+            if (outsideCluster.components.size() > 3) {
+                outsideCluster.iterate();
+            }
             checkClusters();
             for (Cluster c : clusters) {
                 c.iterate();

@@ -201,22 +201,31 @@ public class Cluster {
 //        if (ageing) {
 //            ageing();
 //        }
-        if (components.size() < 3) {
-//            System.out.println("not running tournament with less than 3 components.");
-        } else {
-            LinkedList<Individual> offspring = new LinkedList<Individual>();
-            for (int i = 0; i < components.size(); i++) {
-                List<Individual> parents = tournament((components.size() > 10) ? 10 : components.size(), 3, 1);
-                Individual child = player4.crossover(parents, 3, individualPosition++);
-                if (player4.rnd_.nextDouble() < 0.1) { // mutationRate
-                    offspring.add(new Individual(child.points, individualPosition++));
-                    child.mutateFromNormal(0.8); //mutateFactor
-                } else {
-                    offspring.add(child);
-                }
-            }
-            components = offspring;
+        while (components.size() < 3) {
+            Individual child = new Individual(components.get(player4.rnd_.nextInt(components.size())).points);
+            child.mutateFromNormal(0.8);
+            addIndividual(child);
         }
+        while (components.size() < 10) {
+            // If a cluster has less than 10 components, mutate and crossover until there are 10
+            List<Individual> parents = tournament(components.size(), 3, 1);
+            Individual child = player4.crossover(parents, 3);
+            child.mutateFromNormal(0.8);
+            addIndividual(child);
+        }
+
+        LinkedList<Individual> offspring = new LinkedList<Individual>();
+        for (int i = 0; i < components.size(); i++) {
+            List<Individual> parents = tournament((components.size() > 10) ? 10 : components.size(), 3, 1);
+            Individual child = player4.crossover(parents, 3);
+            if (player4.rnd_.nextDouble() < 0.1) { // mutationRate
+                child.mutateFromNormal(0.8); //mutateFactor
+                offspring.add(child);
+            } else {
+                offspring.add(child);
+            }
+        }
+        components = offspring;
     }
 
     public void removeIndividual(Individual j) {

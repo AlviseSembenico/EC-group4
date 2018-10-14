@@ -16,7 +16,7 @@ class Individual implements Comparable {
     public double[] points;
     public double fitness;
     private boolean evaluated = false;
-    Random rnd_;
+    public static Random rnd_;
     public double[] stepSize;
     static ContestEvaluation f = null;
     static double maxValue = 0;
@@ -25,7 +25,6 @@ class Individual implements Comparable {
     static int nDimension;
     public double adaptiveStep;
     public double coordinateStep;
-    public final int position;
 
     @Override
     public int compareTo(Object t) {
@@ -68,14 +67,12 @@ class Individual implements Comparable {
         // return (double)rnd_.nextDouble()*rnd_.nextInt(8);
     }
 
-    public Individual(double[] points, int position) {
-        this(position);
+    public Individual(double[] points) {
+        this();
         this.points = points;
     }
 
-    public Individual(int position) {
-        this.rnd_ = player4.rnd_;
-        this.position = position;
+    public Individual() {
         this.points = new double[10];
         for (int i = 0; i < 10; i++) {
             this.points[i] = rnd_.nextDouble() * 10 - 5;
