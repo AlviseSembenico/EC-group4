@@ -8,14 +8,14 @@ file_name="C:\\Users\\alvis\\OneDrive\\University\\UVA\\EC\\EC-group4\\Assignmen
 run_times=int(sys.argv[1])
 
 opt = {
-    "populationSize": range(30,110,10),
+    "populationSize": 100,
     "nExec": 10000,
-    "selectivePressure": np.arange(1.0,2.1,0.1),
-    "tournamentSize": range(3,20,1),
-    "mutationRate": np.arange(0,1,0.05),
-    "mutationVariability": np.arange(0,1,0.05),
-    "crossoverPoints": range(1,6,1),
-    "elitismElements": range(1,20,1),
+    "selectivePressure": 1.8,#np.arange(1.0,2.1,0.1),
+    "tournamentSize": range(3,15,1),
+    "mutationRate": np.arange(0.3,0.9,0.1),
+    "mutationVariability": np.arange(0,1,0.1),
+    "crossoverPoints":range(1,6,1),
+    "elitismElements": 0,#range(1,20,1),
     "ageing":False,
     "ageingFactor":0.0
 }

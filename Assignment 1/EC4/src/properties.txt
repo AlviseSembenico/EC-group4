@@ -1,11 +1,10 @@
 populationSize=100
 nExec=10000
 selectivePressure=1.8
-tournamentSize=10
-mutationRate=0.1
+tournamentSize=3
+mutationRate=0.6000000000000001
 mutationVariability=0.8
-crossoverPoints=2
-elitismElements=2
-ageing=false
+crossoverPoints=5
+elitismElements=0
+ageing=False
 ageingFactor=0.0
-clusterRadius=0.5

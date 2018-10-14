@@ -8,7 +8,6 @@ import java.util.Random;
 import java.util.Properties;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.Iterator;
@@ -22,14 +21,14 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_;
+    private int evaluations_limit_=10000;
     // Population size
     private int populationSize = 100;
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
     private double selectivePressure = 1.8;
-    private int tournamentSize = 10;
-    private double mutationRate = 0.1;
+    private int tournamentSize = 7;
+    private double mutationRate = 0.4;
     private double mutationVariability = 0.8;
     private int crossoverPoints = 2;
     private boolean ageing = false;
@@ -82,8 +81,9 @@ public class player4 implements ContestSubmission {
     public player4() {
         rnd_ = new Random();
         Individual.nDimension = 10;
+        Individual.nEval=evaluations_limit_;
         populationInitialization();
-        setParameters();
+        //setParameters();
     }
 
     private void mutateChild2(double premuChild[]) {
@@ -145,6 +145,20 @@ public class player4 implements ContestSubmission {
         }
         return new Individual(newChild, position);
     }
+    
+    private Individual uniformCrossover(List<Individual> parents,int position){
+        double[] res=new double[F_DIMENSIONS];
+        Individual p1,p2;
+        p1=parents.get(0);
+        p2=parents.get(1);
+        for(int i=0;i<F_DIMENSIONS;i++)
+            if(rnd_.nextDouble()>0.5)
+                res[i]=p1.points[i];
+            else
+                res[i]=p2.points[i];
+        return new Individual(res, position);
+    }
+    
 
     public void setSeed(long seed) {
         // Set seed of algortihms random process
@@ -307,7 +321,7 @@ public class player4 implements ContestSubmission {
         return matrix;
     }
 
-    private List<Cluster> agglomerativeClustering(List<Individual> list) {
+    public List<Cluster> agglomerativeClustering(List<Individual> list) {
         List<Cluster> c = new LinkedList<Cluster>();
         for (Individual i : list) {
             c.add(new Cluster(i));
@@ -339,15 +353,15 @@ public class player4 implements ContestSubmission {
         return c;
     }
     
-    public List<Individual> reproduceList(List<Individual> l, int children, int position){
+    private List<Individual> reproduceList(List<Individual> l, int children, int position){
         return reproduceList(l, children, position,1);
     }
     
-    public List<Individual> reproduceCluster(Cluster c, int children,int position){
+    private List<Individual> reproduceCluster(Cluster c, int children,int position){
         return reproduceList(c.components, children, position, c.getAlphaDynamicStepSize());
     }
 
-    public List<Individual> reproduceList(List<Individual> l, int children, int position,double clusterScale) {
+    private List<Individual> reproduceList(List<Individual> l, int children, int position,double clusterScale) {
         if (children == 0 || children > l.size()) {
             children = l.size();
         }
@@ -360,7 +374,7 @@ public class player4 implements ContestSubmission {
         for (int i = 0; i < children; i++) {
 
             List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
-            Individual child = crossover(parents, crossoverPoints, position++);
+            Individual child = uniformCrossover(parents, position++);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
             }
