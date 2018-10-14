@@ -28,10 +28,10 @@ public class player4 implements ContestSubmission {
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
     private double selectivePressure = 1.8;
-    private int tournamentSize = 5;
+    private int tournamentSize = 10;
     private double mutationRate = 0.1;
     private double mutationVariability = 0.8;
-    private int crossoverPoints = 3;
+    private int crossoverPoints = 2;
     private boolean ageing = false;
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
@@ -57,15 +57,16 @@ public class player4 implements ContestSubmission {
             // load a properties file
             prop.load(input);
             // get the property value and print it out
-//            populationSize = Integer.valueOf(prop.getProperty("populationSize"));
-//            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
-//            tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
-//            mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
-//            mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
-//            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
-//            elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
-//            ageing = Boolean.valueOf(prop.getProperty("ageing"));
-//            ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
+            populationSize = Integer.valueOf(prop.getProperty("populationSize"));
+            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
+            tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
+            mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
+            mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
+            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
+            elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
+            ageing = Boolean.valueOf(prop.getProperty("ageing"));
+            ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
+            clusterRadius = Double.valueOf(prop.getProperty("clusterRadius"));
             Individual.nEval = Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
@@ -393,7 +394,7 @@ public class player4 implements ContestSubmission {
             //System.out.println(population.size());
             //breeding within the clusters
             for (Cluster c : clusters) 
-                offspringCluster.addAll(reproduceList(c.components, limitClusterPop, individualPosition));
+                offspringCluster.addAll(reproduceList(c.components, c.getDynamicPopSize(), individualPosition));
             
             //reproduction of the individuals that do not belog to any cluster
  
@@ -410,7 +411,7 @@ public class player4 implements ContestSubmission {
             for (Cluster c : clusters) {
                 List<Individual> newGen = new LinkedList<Individual>();
                 for (Individual i : offspringCluster) 
-                    if (c.contains(i, clusterRadius))
+                    if (c.contains(i))
                         newGen.add(i);
                 global.removeAll(newGen);
                 c.newGeneration(newGen);

@@ -60,6 +60,23 @@ public class Cluster {
         return components.size();
     }
     
+    public double getAlphaDynamicStepSize(){
+        return 1;
+    }
+    
+    public double getDynamicRadius(){
+        return 1/(fitnessMean()+2);
+    }
+    
+    public int getDynamicPopSize(){
+        //TO IMPLEMENT
+        return 5;
+    }
+    
+    public boolean contains(Individual i){
+        return contains(i,getDynamicRadius());
+    }
+    
     public boolean contains(Individual i,double radius){
         if(i.distance(gravityCenter())<radius)
             return true;

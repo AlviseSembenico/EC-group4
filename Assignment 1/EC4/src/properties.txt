@@ -8,3 +8,4 @@ crossoverPoints=2
 elitismElements=2
 ageing=false
 ageingFactor=0.0
+clusterRadius=0.5
