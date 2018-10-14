@@ -201,10 +201,10 @@ public class Cluster {
 //        if (ageing) {
 //            ageing();
 //        }
-        LinkedList<Individual> offspring = new LinkedList<Individual>();
         if (components.size() < 3) {
 //            System.out.println("not running tournament with less than 3 components.");
         } else {
+            LinkedList<Individual> offspring = new LinkedList<Individual>();
             for (int i = 0; i < components.size(); i++) {
                 List<Individual> parents = tournament((components.size() > 10) ? 10 : components.size(), 3, 1);
                 Individual child = player4.crossover(parents, 3, individualPosition++);
@@ -214,10 +214,9 @@ public class Cluster {
                 } else {
                     offspring.add(child);
                 }
-                offspring.add(parents.get(0));
             }
+            components = offspring;
         }
-        components = offspring;
     }
 
     public void removeIndividual(Individual j) {

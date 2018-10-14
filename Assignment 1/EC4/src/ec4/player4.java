@@ -238,6 +238,8 @@ public class player4 implements ContestSubmission {
 
     public void run() {
         // Run your algorithm here
+        double max = 0;
+
         int evals = 0;
         while (true) {
             outsideCluster.iterate();
