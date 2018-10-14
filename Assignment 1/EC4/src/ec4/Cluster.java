@@ -218,7 +218,7 @@ public class Cluster {
         for (int i = 0; i < components.size(); i++) {
             List<Individual> parents = tournament((components.size() > 10) ? 10 : components.size(), 2, 1);
             Individual child = player4.uniformCrossover(parents);
-            if (player4.rnd_.nextDouble() < 0.1) { // mutationRate
+            if (player4.rnd_.nextDouble() < 0.2) { // mutationRate
                 child.mutateFromNormal(0.8); //mutateFactor
                 offspring.add(child);
             } else {
