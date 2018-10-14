@@ -35,6 +35,8 @@ public class player4 implements ContestSubmission {
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
     private double clusterRadius = 0.5;
+    private double arithmeticCrossoverStep=0.5;
+    
     /**
      * Initialize the popoulation randomly
      */
@@ -144,6 +146,16 @@ public class player4 implements ContestSubmission {
             newChild[i] = currentParent.points[i];
         }
         return new Individual(newChild, position);
+    }
+    
+    private Individual arithmeticCrossover(List<Individual> parents,int position){
+        double[] res=new double[F_DIMENSIONS];
+        Individual p1,p2;
+        p1=parents.get(0);
+        p2=parents.get(1);
+        for(int i=0;i<F_DIMENSIONS;i++)
+                res[i]=arithmeticCrossoverStep*p1.points[i]+(1-arithmeticCrossoverStep)*p2.points[i];
+        return new Individual(res, position);
     }
     
     private Individual uniformCrossover(List<Individual> parents,int position){
@@ -374,7 +386,7 @@ public class player4 implements ContestSubmission {
         for (int i = 0; i < children; i++) {
 
             List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
-            Individual child = uniformCrossover(parents, position++);
+            Individual child = arithmeticCrossover(parents, position++);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
             }
