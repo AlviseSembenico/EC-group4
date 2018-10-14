@@ -110,6 +110,19 @@ public class player4 implements ContestSubmission {
         }
     }
 
+    public static Individual uniformCrossover(List<Individual> parents){
+        double[] res=new double[F_DIMENSIONS];
+        Individual p1,p2;
+        p1=parents.get(0);
+        p2=parents.get(1);
+        for(int i=0;i<F_DIMENSIONS;i++)
+            if(rnd_.nextDouble()>0.5)
+                res[i]=p1.points[i];
+            else
+                res[i]=p2.points[i];
+        return new Individual(res);
+    }
+
     /**
      * t Crossover with crossover point in the middle
      */
