@@ -35,7 +35,7 @@ public class player4 implements ContestSubmission {
     private boolean ageing = false;
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
-    private double clusterRadius = 3.0;
+    private double clusterRadius = 0.5;
     private int limitClusterPop = 10;
 
     /**
@@ -57,15 +57,15 @@ public class player4 implements ContestSubmission {
             // load a properties file
             prop.load(input);
             // get the property value and print it out
-            populationSize = Integer.valueOf(prop.getProperty("populationSize"));
-            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
-            tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
-            mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
-            mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
-            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
-            elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
-            ageing = Boolean.valueOf(prop.getProperty("ageing"));
-            ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
+//            populationSize = Integer.valueOf(prop.getProperty("populationSize"));
+//            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
+//            tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
+//            mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
+//            mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
+//            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
+//            elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
+//            ageing = Boolean.valueOf(prop.getProperty("ageing"));
+//            ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
             Individual.nEval = Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
@@ -309,9 +309,9 @@ public class player4 implements ContestSubmission {
         return matrix;
     }
 
-    private List<Cluster> agglomerativeClustering() {
+    private List<Cluster> agglomerativeClustering(List<Individual> list) {
         List<Cluster> c = new LinkedList<Cluster>();
-        for (Individual i : population) {
+        for (Individual i : list) {
             c.add(new Cluster(i));
         }
         while (c.size() > 1) {
@@ -345,11 +345,15 @@ public class player4 implements ContestSubmission {
         if (children == 0 || children > l.size()) {
             children = l.size();
         }
+        List<Individual> copy=new LinkedList<Individual>();
+        copy.addAll(l);
+        for(int i=3-l.size();i>0;i--)
+            copy.add(population.get(rnd_.nextInt(population.size()-1)));
 
         List<Individual> res = new LinkedList<Individual>();
         for (int i = 0; i < children; i++) {
 
-            List<Individual> parents = tournament((LinkedList<Individual>) l, tournamentSize, 3, 1);
+            List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
             Individual child = crossover(parents, crossoverPoints, position++);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability);
@@ -360,54 +364,57 @@ public class player4 implements ContestSubmission {
     }
 
     public void run() {
-        // Run your algorithm here
-        int iter = 0;
         List<Individual> global = new LinkedList<Individual>();
+        global.addAll(population);
+        List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
             
-            List<Cluster> clusters = agglomerativeClustering();
             int individualPosition = 0;
+            clusters.addAll(agglomerativeClustering(global));
+            
+            
             //remove clusters with dimension 1
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
                 Cluster c = iterator.next();
+                //purging of the population surplus 
+                c.purgeMax(limitClusterPop);
                 if (c.components.size() < 3) {
-                    global.addAll(c.components);
+                    //global.addAll(c.components);
                     iterator.remove();
                 }
+                else
+                    //remove the final components of the cluster from the global population
+                    global.removeAll(c.components);
             }
-
+            
+            
             List<Individual> offspringCluster = new LinkedList<Individual>();
 
-                //System.out.println(population.size());
-                //breeding within the clusters
-                for (Cluster c : clusters) {
-                    //purging of the population surplus 
-                    global.addAll(c.purgeMax(limitClusterPop));
-                    if (c.components.size() >= 3) 
-                        //reproduction of the components of the cluster
-                        offspringCluster.addAll(reproduceList(c.components, limitClusterPop, individualPosition));
-                }
-                //reproduction of the individuals that do not belog to any cluster
-                offspringCluster.addAll(reproduceList(global, 0, individualPosition));
-               
-                if (offspringCluster.size() != populationSize) 
-                    offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
-                
-                population = (LinkedList<Individual>) offspringCluster;
-                global = new LinkedList<Individual>();
+            //System.out.println(population.size());
+            //breeding within the clusters
+            for (Cluster c : clusters) 
+                offspringCluster.addAll(reproduceList(c.components, limitClusterPop, individualPosition));
+            
+            //reproduction of the individuals that do not belog to any cluster
+ 
+            offspringCluster.addAll(reproduceList(global, 0, individualPosition));
 
-                //classification of the offspring, trying to add them to one cluster
-                for (Cluster c : clusters) {
-                    List<Individual> newGen = new LinkedList<Individual>();
-                    for (Individual i : offspringCluster) 
-                        if (c.contains(i, clusterRadius))
-                            newGen.add(i);
-                    //if (newGen.size() > 1) 
-                    //    offspringCluster.removeAll(newGen);
-                    
-                    c.newGeneration(newGen);
-                }
-            iter++;
+            if (offspringCluster.size() != populationSize) 
+                offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
+
+            population = (LinkedList<Individual>) offspringCluster;
+            global = new LinkedList<Individual>();
+            global.addAll(offspringCluster);
+            
+            //classification of the offspring, trying to add them to one cluster
+            for (Cluster c : clusters) {
+                List<Individual> newGen = new LinkedList<Individual>();
+                for (Individual i : offspringCluster) 
+                    if (c.contains(i, clusterRadius))
+                        newGen.add(i);
+                global.removeAll(newGen);
+                c.newGeneration(newGen);
+            }
         }
     }
 
