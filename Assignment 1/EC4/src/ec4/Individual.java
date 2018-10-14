@@ -118,7 +118,7 @@ class Individual implements Comparable {
             stepSize[i]*=Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian()+coordinateStep*rnd_.nextGaussian());
     }
     
-    public void mutateFromNormal(double mutateFactor) {
+    public void mutateFromNormal(double mutateFactor, double clusterScale) {
         for (int i = 0; i < nDimension; i++) {
             double coinFlip = rnd_.nextDouble();
             if (coinFlip > mutateFactor) {

@@ -36,8 +36,6 @@ public class player4 implements ContestSubmission {
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
     private double clusterRadius = 0.5;
-    private int limitClusterPop = 10;
-
     /**
      * Initialize the popoulation randomly
      */
@@ -66,7 +64,6 @@ public class player4 implements ContestSubmission {
             elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
-            clusterRadius = Double.valueOf(prop.getProperty("clusterRadius"));
             Individual.nEval = Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
@@ -341,8 +338,16 @@ public class player4 implements ContestSubmission {
 //        System.out.println("");
         return c;
     }
+    
+    public List<Individual> reproduceList(List<Individual> l, int children, int position){
+        return reproduceList(l, children, position,1);
+    }
+    
+    public List<Individual> reproduceCluster(Cluster c, int children,int position){
+        return reproduceList(c.components, children, position, c.getAlphaDynamicStepSize());
+    }
 
-    public List<Individual> reproduceList(List<Individual> l, int children, int position) {
+    public List<Individual> reproduceList(List<Individual> l, int children, int position,double clusterScale) {
         if (children == 0 || children > l.size()) {
             children = l.size();
         }
@@ -357,7 +362,7 @@ public class player4 implements ContestSubmission {
             List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
             Individual child = crossover(parents, crossoverPoints, position++);
             if (rnd_.nextDouble() < mutationRate) {
-                child.mutateFromNormal(mutationVariability);
+                child.mutateFromNormal(mutationVariability,clusterScale);
             }
             res.add(child);
         }
@@ -378,7 +383,7 @@ public class player4 implements ContestSubmission {
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
                 Cluster c = iterator.next();
                 //purging of the population surplus 
-                c.purgeMax(limitClusterPop);
+                c.purge();
                 if (c.components.size() < 3) {
                     //global.addAll(c.components);
                     iterator.remove();
@@ -394,7 +399,7 @@ public class player4 implements ContestSubmission {
             //System.out.println(population.size());
             //breeding within the clusters
             for (Cluster c : clusters) 
-                offspringCluster.addAll(reproduceList(c.components, c.getDynamicPopSize(), individualPosition));
+                offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize(), individualPosition));
             
             //reproduction of the individuals that do not belog to any cluster
  

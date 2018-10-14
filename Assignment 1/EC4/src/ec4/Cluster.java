@@ -42,6 +42,10 @@ public class Cluster {
         return purge(components.size()-n);
     }
     
+    public List<Individual> purge(){
+        return purgeMax(getDynamicPopSize());
+    }
+    
     public List<Individual> purge(int n){
         List<Individual> res=new LinkedList<Individual>();
         for(int j=0;j<n;j++){
@@ -55,13 +59,9 @@ public class Cluster {
         return res;
     }
     
-    public int populationSizeTh(){
-        //to implement more smart
-        return components.size();
-    }
-    
+
     public double getAlphaDynamicStepSize(){
-        return 1;
+        return 1/(fitnessMean()+1);
     }
     
     public double getDynamicRadius(){
@@ -70,7 +70,7 @@ public class Cluster {
     
     public int getDynamicPopSize(){
         //TO IMPLEMENT
-        return 5;
+        return 10;
     }
     
     public boolean contains(Individual i){
