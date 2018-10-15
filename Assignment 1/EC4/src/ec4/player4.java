@@ -410,8 +410,13 @@ public class player4 implements ContestSubmission {
                 Cluster c = iterator.next();
                 //purging of the population surplus 
                 c.purge();
-                if (c.components.size() < 3) {
+                if (c.components.size() < 3 ) {
                     //global.addAll(c.components);
+                    iterator.remove();
+                }
+                else if(c.nonProductive()){
+                    //check if the cluster has already analized the area for a while and has not discover good points
+                    Cluster.discartedCentroid.add(c.gravityCenter());
                     iterator.remove();
                 }
                 else
