@@ -21,7 +21,7 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_=10000;
+    private int evaluations_limit_=100000;
     // Population size
     private int populationSize = 100;
     private final int F_DIMENSIONS = 10;
