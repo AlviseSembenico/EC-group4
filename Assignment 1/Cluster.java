@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ec4;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,18 +14,11 @@ import java.util.List;
 public class Cluster {
     public List<Individual> components;
     public List<Double> fitnessHistory;
-    public List<double[]> centroidHistory;
-    public static List<double[]> discartedCentroid;
     private boolean newGen=true;
-    private int generationBound=10;
-    private double discardBound=3;
-    private double clusterDistance=0.2;
     
     public Cluster(){
         components=new LinkedList<Individual>();
         fitnessHistory=new LinkedList<Double>();
-        centroidHistory=new LinkedList<double[]>();
-        discartedCentroid=new LinkedList<double[]>();
     }
     public Cluster(List<Individual> l){
         components=l;
@@ -34,24 +26,6 @@ public class Cluster {
     public Cluster(Individual i){
         this();
         components.add(i);
-    }
-    
-    private boolean closeToDiscarted(){
-        for(double[] compare:Cluster.discartedCentroid)
-            if(averageDistance(compare)<clusterDistance)
-                return true;
-        return false;
-                
-    }
-    
-    public boolean nonProductive(){
-        //TO BE IMPLEMENTED
-        if(fitnessHistory.size()<generationBound)
-            return false;
-        if(closeToDiscarted())
-            return true;
-        int size=fitnessHistory.size();
-        return fitnessHistory.get(size/3)-fitnessHistory.get(size-1)<discardBound;
     }
     
     public double fitnessMean(){
@@ -110,8 +84,6 @@ public class Cluster {
     }
     
     public void newGeneration(List<Individual> l){
-        fitnessHistory.add(fitnessMean());
-        centroidHistory.add(gravityCenter());
         this.components=l;
         newGen=true;
     }
@@ -163,15 +135,6 @@ public class Cluster {
         if(components.size()+cl.components.size()==0)
             return 0;
         return max;
-    }
-    
-    public double averageDistance(double[] cl){
-        double tot=0;
-        for(Individual i:components)
-            tot+=i.distance(cl);
-        if(components.size()==0)
-            return 0;
-        return tot/(components.size());
     }
     
     public double averageDistance(Cluster cl){
