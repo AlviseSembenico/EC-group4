@@ -3,6 +3,6 @@ nExec=10000
 tournamentSize=7
 mutationRate=0.4
 mutationVariability=0.8
-elitismElements=1
+elitismElements=10
 ageing=false
 ageingFactor=0

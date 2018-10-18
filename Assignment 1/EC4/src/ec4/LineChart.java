@@ -40,6 +40,7 @@ public class LineChart extends ApplicationFrame implements ActionListener {
      * The most recent value added.
      */
     private double lastValue = 100.0;
+    private int counter=0;
 
     /**
      * Constructs a new demonstration application.
@@ -47,7 +48,7 @@ public class LineChart extends ApplicationFrame implements ActionListener {
      * @param title the frame title.
      */
     public LineChart(final String title) {
-
+        
         super(title);
         this.series = new TimeSeries("Random Data", Millisecond.class);
         final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
