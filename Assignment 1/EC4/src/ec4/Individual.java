@@ -29,7 +29,7 @@ class Individual implements Comparable {
 
     @Override
     public int compareTo(Object t) {
-        return Double.compare(this.getFitness(), ((Individual) t).getFitness());
+        return -Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
     public double computeDistance(Individual ch1) {

@@ -326,9 +326,15 @@ public class player4 implements ContestSubmission {
             //breeding within the clusters
             for (Cluster c : clusters) 
                 offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize()));
-
+            
+            
             //reproduction of the individuals that do not belog to any cluster
-            offspringCluster.addAll(reproduceList(global, 0));
+            if(elitismElements!=0){
+                Collections.sort(population);
+                offspringCluster.addAll(population.subList(0, elitismElements));
+            }
+            
+            offspringCluster.addAll(reproduceList(global, global.size()-elitismElements));
 
             if (offspringCluster.size() != populationSize) 
                 offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));

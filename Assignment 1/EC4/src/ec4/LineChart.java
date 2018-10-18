@@ -54,13 +54,9 @@ public class LineChart extends ApplicationFrame implements ActionListener {
         final JFreeChart chart = createChart(dataset);
 
         final ChartPanel chartPanel = new ChartPanel(chart);
-        final JButton button = new JButton("Add New Data Item");
-        button.setActionCommand("ADD_DATA");
-        button.addActionListener(this);
 
         final JPanel content = new JPanel(new BorderLayout());
         content.add(chartPanel);
-        content.add(button, BorderLayout.SOUTH);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(content);
 
@@ -75,7 +71,7 @@ public class LineChart extends ApplicationFrame implements ActionListener {
      */
     private JFreeChart createChart(final XYDataset dataset) {
         final JFreeChart result = ChartFactory.createTimeSeriesChart(
-                "Dynamic Data Demo",
+                "Fittest Individual",
                 "Time",
                 "Value",
                 dataset,
@@ -86,7 +82,7 @@ public class LineChart extends ApplicationFrame implements ActionListener {
         final XYPlot plot = result.getXYPlot();
         ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
-        axis.setFixedAutoRange(6000.0);  // 60 seconds
+        //axis.setFixedAutoRange(1500.0);  // 60 seconds
         axis = plot.getRangeAxis();
         axis.setRange(0.0, 10.0);
         return result;
