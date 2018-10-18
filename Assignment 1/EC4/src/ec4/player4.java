@@ -21,7 +21,7 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_= 10000   ;
+    private int evaluations_limit_= 100000;
     // Population size
     private int populationSize;
     public static double[][] distantMatrix;
@@ -63,7 +63,7 @@ public class player4 implements ContestSubmission {
             elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
-            Individual.nEval = Integer.valueOf(prop.getProperty("nExec"));
+            evaluations_limit_ = Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -81,7 +81,7 @@ public class player4 implements ContestSubmission {
     public player4() {
         rnd_ = new Random();
         setParameters();
-        Individual.nDimension = 10;
+        Individual.nDimension = F_DIMENSIONS;
         Individual.nEval=evaluations_limit_;
         populationInitialization();
     }
@@ -285,6 +285,7 @@ public class player4 implements ContestSubmission {
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
+            
             distanceMatrix();
             individualPosition = 0;
             slideWindow();
@@ -318,7 +319,7 @@ public class player4 implements ContestSubmission {
                 offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
 
             population = (LinkedList<Individual>) offspringCluster;
-            global = (List<Individual>) population.clone();
+            global = (List<Individual>) population.clone(); 
             //classification of the offspring, trying to add them to one cluster
        
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {

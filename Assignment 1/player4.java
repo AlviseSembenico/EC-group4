@@ -19,21 +19,21 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_=10000;
+    private int evaluations_limit_= 10000;
     // Population size
-    private int populationSize = 100;
+    private int populationSize=100;
+    public static double[][] distantMatrix;
+    public static int individualPosition=0;
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
-    private double selectivePressure = 1.8;
     private int tournamentSize = 7;
     private double mutationRate = 0.4;
     private double mutationVariability = 0.8;
-    private int crossoverPoints = 2;
     private boolean ageing = false;
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
-    private double clusterRadius = 0.5;
-    private double arithmeticCrossoverStep=0.5;
+    private final double clusterRadius = 1;
+    private final double arithmeticCrossoverStep=0.5;
     
     /**
      * Initialize the popoulation randomly
@@ -41,7 +41,7 @@ public class player4 implements ContestSubmission {
     private void populationInitialization() {
         population = new LinkedList<Individual>();
         for (int j = 0; j < populationSize; j++) {
-            population.add(new Individual(j));
+            population.add(new Individual());
         }
     }
 
@@ -50,16 +50,14 @@ public class player4 implements ContestSubmission {
         Properties prop = new Properties();
         InputStream input = null;
         try {
-            input = new FileInputStream("C:\\Users\\alvis\\OneDrive\\University\\UVA\\EC\\EC-group4\\Assignment 1\\EC4\\src\\properties.txt");
+            input = new FileInputStream("src/properties.txt");
             // load a properties file
             prop.load(input);
             // get the property value and print it out
             populationSize = Integer.valueOf(prop.getProperty("populationSize"));
-            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
             tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
             mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
             mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
-            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
             elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
@@ -80,101 +78,19 @@ public class player4 implements ContestSubmission {
 
     public player4() {
         rnd_ = new Random();
+        //setParameters();
         Individual.nDimension = 10;
         Individual.nEval=evaluations_limit_;
         populationInitialization();
-        //setParameters();
     }
 
-    private void mutateChild2(double premuChild[]) {
-        // Mutation that will move shortly in the 10D space (Low variation)
-        double p1 = 0.8 * mutationVariability + 0.1; // p1 from 0.1 to 0.9
-        // Move some random values a random % distance towards one of the sides (+ or -)
-        for (int i = 0; i < premuChild.length; i++) {
-            double coinFlip = rnd_.nextDouble();
-            boolean movePositive = coinFlip > 0.5;
-            coinFlip = rnd_.nextDouble();
-            if (coinFlip < p1) {
-                double maxDistance = 0.0;
-                if (movePositive) {
-                    maxDistance = 5.0 - premuChild[i];
-                } else {
-                    maxDistance = -Math.abs(-5.0 - premuChild[i]);
-                }
-
-                premuChild[i] = premuChild[i] + (rnd_.nextDouble() * maxDistance);
-            }
-        }
-    }
-
-    /**
-     * t Crossover with crossover point in the middle
-     */
-    private Individual crossover(List<Individual> parents, int numPoints, int position) {
-        // Using 3 parents, make a 3 point crossover
-        // Choose the 3 points
-        List<Integer> crossovers = new LinkedList<Integer>();
-        int randomCrossover;
-        for (int i = 0; i < numPoints; i++) {
-            randomCrossover = rnd_.nextInt(F_DIMENSIONS - 1);
-            if (!crossovers.contains(randomCrossover)) {
-                crossovers.add(randomCrossover);
-            } else {
-                i--;
-            }
-        }
-
-        Collections.sort(crossovers);
-        double[] newChild = new double[10];
-        Iterator p = parents.iterator(), c = crossovers.iterator();
-        Individual currentParent = (Individual) p.next();
-        int point = (Integer) c.next();
-
-        for (int i = 0; i < F_DIMENSIONS; i++) {
-            if (i == point) {
-                if (!p.hasNext()) {
-                    p = parents.iterator();
-                }
-                currentParent = (Individual) p.next();
-
-                if (!c.hasNext()) {
-                    point = -1;
-                }
-            }
-            newChild[i] = currentParent.points[i];
-        }
-        return new Individual(newChild, position);
-    }
-    
-    private Individual arithmeticCrossover(List<Individual> parents,int position){
-        double[] res=new double[F_DIMENSIONS];
-        Individual p1,p2;
-        p1=parents.get(0);
-        p2=parents.get(1);
-        for(int i=0;i<F_DIMENSIONS;i++)
-                res[i]=arithmeticCrossoverStep*p1.points[i]+(1-arithmeticCrossoverStep)*p2.points[i];
-        return new Individual(res, position);
-    }
-    
-    private Individual uniformCrossover(List<Individual> parents,int position){
-        double[] res=new double[F_DIMENSIONS];
-        Individual p1,p2;
-        p1=parents.get(0);
-        p2=parents.get(1);
-        for(int i=0;i<F_DIMENSIONS;i++)
-            if(rnd_.nextDouble()>0.5)
-                res[i]=p1.points[i];
-            else
-                res[i]=p2.points[i];
-        return new Individual(res, position);
-    }
-    
-
+    @Override
     public void setSeed(long seed) {
         // Set seed of algortihms random process
         rnd_.setSeed(seed);
     }
 
+    @Override
     public void setEvaluation(ContestEvaluation evaluation) {
         // Set evaluation problem used in the run
         this.evaluation = evaluation;
@@ -195,24 +111,6 @@ public class player4 implements ContestSubmission {
         } else {
             // Do sth else
         }
-    }
-
-    private double sumFitness() {
-        double total = 0.0;
-        for (Individual individual : population) {
-            total += individual.getFitness();
-        }
-        return total;
-    }
-
-    /**
-     *
-     * @param position order of arrival of the parent within the tournament
-     * @param u the dimension of the tournament
-     * @return the probability for the parent to be chosen
-     */
-    private double linearRanking(int position, int u) {
-        return ((2 - selectivePressure) / u) + ((2 * position * (selectivePressure - 1)) / (u * (u - 1)));
     }
 
     /**
@@ -289,15 +187,6 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
-    private List<Individual> topIndividual(int n) {
-        List<Individual> top = new LinkedList<Individual>();
-        Collections.sort(population);
-        for (n--; n >= 0; n--) {
-            top.add(population.get(n));
-        }
-        return top;
-    }
-
     private void slideWindow() {
         double minFitness = 0.0;
         for (Individual ind : population) {
@@ -310,12 +199,6 @@ public class player4 implements ContestSubmission {
         }
     }
 
-    private void ageing() {
-        for (Individual ind : population) {
-            ind.fitness -= ageingFactor;
-        }
-    }
-
     private double[][] distanceMatrix() {
         double[][] matrix = new double[populationSize][populationSize];
         Iterator<Individual> c1 = population.iterator();
@@ -324,14 +207,15 @@ public class player4 implements ContestSubmission {
             Iterator<Individual> c2 = population.iterator();
             while (c2.hasNext()) {
                 Individual ch2 = c2.next();
-                matrix[ch1.position][ch2.position] = ch1.distance(ch2);
+                matrix[ch1.position][ch2.position] = ch1.computeDistance(ch2);
             }
 
         }
+        distantMatrix=matrix;
         return matrix;
     }
 
-    public List<Cluster> agglomerativeClustering(List<Individual> list) {
+    private List<Cluster> agglomerativeClustering(List<Individual> list) {
         List<Cluster> c = new LinkedList<Cluster>();
         for (Individual i : list) {
             c.add(new Cluster(i));
@@ -363,18 +247,18 @@ public class player4 implements ContestSubmission {
         return c;
     }
     
-    private List<Individual> reproduceList(List<Individual> l, int children, int position){
-        return reproduceList(l, children, position,1);
+    private List<Individual> reproduceList(List<Individual> l, int children){
+        return reproduceList(l, children,1);
     }
     
-    private List<Individual> reproduceCluster(Cluster c, int children,int position){
-        return reproduceList(c.components, children, position, c.getAlphaDynamicStepSize());
+    private List<Individual> reproduceCluster(Cluster c, int children){
+        return reproduceList(c.components, children, c.getAlphaDynamicStepSize());
     }
 
-    private List<Individual> reproduceList(List<Individual> l, int children, int position,double clusterScale) {
-        if (children == 0 || children > l.size()) {
+    private List<Individual> reproduceList(List<Individual> l, int children,double clusterScale) {
+        if (children == 0 || children > l.size()) 
             children = l.size();
-        }
+        
         List<Individual> copy=new LinkedList<Individual>();
         copy.addAll(l);
         for(int i=3-l.size();i>0;i--)
@@ -383,8 +267,8 @@ public class player4 implements ContestSubmission {
         List<Individual> res = new LinkedList<Individual>();
         for (int i = 0; i < children; i++) {
 
-            List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
-            Individual child = crossover(parents, 2,position++);
+            List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 2, 1);
+            Individual child = parents.get(0).arithmeticCrossover(parents.get(1), arithmeticCrossoverStep);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
             }
@@ -393,65 +277,63 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
+    @Override
     public void run() {
         List<Individual> global = new LinkedList<Individual>();
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
-            
-            int individualPosition = 0;
+            //System.out.println(Cluster.discartedCentroid.size());
+            distanceMatrix();
+            individualPosition = 0;
+            slideWindow();
             clusters.addAll(agglomerativeClustering(global));
-            
-            
-            //remove clusters with dimension 1
+                        
+            //remove clusters with dimension < 3
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
                 Cluster c = iterator.next();
-                //purging of the population surplus 
-                c.purge();
-                if (c.components.size() < 3 ) {
-                    //global.addAll(c.components);
+                //purgeing of the population surplus 
+                if (c.components.size() < 3 ) 
                     iterator.remove();
-                }
                 else if(c.nonProductive()){
                     //check if the cluster has already analized the area for a while and has not discover good points
                     Cluster.discartedCentroid.add(c.gravityCenter());
-                    //System.out.println("add");
                     iterator.remove();
                 }
-                else
+                else{
                     //remove the final components of the cluster from the global population
                     global.removeAll(c.components);
+                }                    
             }
-            
-            
             List<Individual> offspringCluster = new LinkedList<Individual>();
-
-            //System.out.println(population.size());
             //breeding within the clusters
             for (Cluster c : clusters) 
-                offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize(), individualPosition));
-            
+                offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize()));
+
             //reproduction of the individuals that do not belog to any cluster
- 
-            offspringCluster.addAll(reproduceList(global, 0, individualPosition));
+            offspringCluster.addAll(reproduceList(global, 0));
 
             if (offspringCluster.size() != populationSize) 
                 offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
 
             population = (LinkedList<Individual>) offspringCluster;
-            global = new LinkedList<Individual>();
-            global.addAll(offspringCluster);
-            
+            global = (List<Individual>) population.clone(); 
             //classification of the offspring, trying to add them to one cluster
-            for (Cluster c : clusters) {
+       
+            for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
+                Cluster c=iterator.next();
                 List<Individual> newGen = new LinkedList<Individual>();
-                for (Individual i : offspringCluster) 
+                for (Individual i : global) 
                     if (c.contains(i))
                         newGen.add(i);
-                global.removeAll(newGen);
-                c.newGeneration(newGen);
+                if(newGen.isEmpty())
+                    iterator.remove();
+                 
+                else{
+                    c.newGeneration(newGen);
+                    global.removeAll(newGen);
+                }
             }
         }
     }
-
 }

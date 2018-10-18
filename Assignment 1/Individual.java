@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,8 +15,8 @@ class Individual implements Comparable {
     static int totEval = 0;
     static int nEval = 10000;
     static int nDimension;
-    public double adaptiveStep;
-    public double coordinateStep;
+    public final double adaptiveStep =1/Math.sqrt(2*nDimension);
+    public final double coordinateStep=1/Math.sqrt(2*Math.sqrt(nDimension));
     public final int position;
     static double maxFitness=0;
 
@@ -31,48 +25,53 @@ class Individual implements Comparable {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
-    public double distance(Individual ch1) {
+    public double computeDistance(Individual ch1) {
         double res = 0.0;
         for (int i = 0; i < ch1.points.length; i++)
             res += Math.pow(ch1.points[i] - this.points[i], 2);
         return Math.sqrt(res);
     }
     
+    public double distance(Individual ch1) {
+        return player4.distantMatrix[this.position][ch1.position];
+    }
+    
+    public double computeDistance(double [] ch1){
+        double res = 0.0;
+        for (int i = 0; i < ch1.length; i++)
+            res += Math.pow(ch1[i] - this.points[i], 2);
+        return Math.sqrt(res);
+    }
+    
     public double distance(double [] ch1){
-        return distance(new Individual(ch1,-1));
+        return computeDistance(ch1);
     }
 
-    public Individual(double[] points,int position) {
-        this(position);
+    public Individual(double[] points) {
+        this();
         this.points=points;
     }
 
-    public Individual(int position) {
-        this.position=position;
+    public Individual() {
+        this.position=player4.individualPosition++;
         this.points = new double[10];
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) 
             this.points[i] = rnd_.nextDouble() * 10 - 5;
-        }
-        adaptiveStep=1/Math.sqrt(2*nDimension);
-        coordinateStep=1/Math.sqrt(2*Math.sqrt(nDimension));
+        
         stepSize=new double[nDimension];
         for(int i=0;i<nDimension;i++)
             stepSize[i]=1;
     }
 
-
-    public double getFitness(){
+    public double getFitness() {
         if (!evaluated) {
-            try{
-                fitness = (double) player4.evaluation.evaluate(this.points);
-            }
-            catch(Exception e){
-                System.out.println("Ran out of evaluation");
-                Object a=null;
-                a.equals(2);
-            }
+            fitness = (double) player4.evaluation.evaluate(this.points);
         }
         evaluated = true;
+        if(fitness>maxFitness){
+            maxFitness=fitness;
+            //System.out.println("New max fitness found: " + fitness);
+        }
         return fitness;
     }
 
@@ -91,11 +90,18 @@ class Individual implements Comparable {
             stepSize[i]*=Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian()+coordinateStep*rnd_.nextGaussian());
     }
     
+    public Individual arithmeticCrossover(Individual parent,double arithmeticCrossoverStep){
+        double[] res=new double[nDimension];
+        for(int i=0;i<nDimension;i++)
+                res[i]=arithmeticCrossoverStep*points[i]+(1-arithmeticCrossoverStep)*parent.points[i];
+        return new Individual(res);
+    }
+    
     public void mutateFromNormal(double mutateFactor, double clusterScale) {
         for (int i = 0; i < nDimension; i++) {
             double coinFlip = rnd_.nextDouble();
             if (coinFlip > mutateFactor) {
-                double generated = rnd_.nextGaussian() * stepSize[i];
+                double generated = rnd_.nextGaussian() * stepSize[i] * clusterScale;
                 while (this.points[i] + generated >= 5 && this.points[i] + generated <= -5) {
                     generated = rnd_.nextGaussian() * stepSize[i];
                 }
@@ -106,43 +112,4 @@ class Individual implements Comparable {
         evaluated = false;
     }
 
-    private boolean isNumber(String l) {
-        try {
-            Integer.valueOf(l);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean isNumber(char l) {
-        return isNumber(String.valueOf(l));
-    }
-
-    /**
-     * Does some thing in old style.
-     *
-     * @deprecated use {@mutateFromNormal()} instead.
-     */
-    @Deprecated
-    public void mutateChildLarge(double mutationVariability) {
-        for (int i = 0; i < points.length; i++) {
-            String n = "";
-            for (char l : String.valueOf(points[i]).toCharArray()) {
-                if (isNumber(l)) {
-                    if (rnd_.nextDouble() < mutationVariability) {
-                        n += rnd_.nextInt(10);
-                    } else {
-                        n += l;
-                    }
-                } else {
-                    n += l;
-                }
-
-            }
-            points[i] = Math.abs(Double.valueOf(n)) % 10 - 5;
-        }
-
-        evaluated = false;
-    }
 }

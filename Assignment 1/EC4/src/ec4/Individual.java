@@ -18,9 +18,9 @@ class Individual implements Comparable {
     Random rnd_ = new Random();
     public double[] stepSize;
     static ContestEvaluation f = null;
-    static double maxValue = 0;
+    static double maxValue = Double.NEGATIVE_INFINITY;
     static int totEval = 0;
-    static int nEval = 10000;
+    static int nEval ;
     static int nDimension;
     public final double adaptiveStep =1/Math.sqrt(2*nDimension);
     public final double coordinateStep=1/Math.sqrt(2*Math.sqrt(nDimension));
@@ -54,7 +54,7 @@ class Individual implements Comparable {
         return computeDistance(ch1);
     }
     
-    public double evaluate(Object c) {
+    public double evaluate(Object c) {      
         //System.out.println(totEval);
         if (nEval == totEval) {
             System.out.println("Score:" + maxValue);
@@ -92,7 +92,7 @@ class Individual implements Comparable {
     public Individual() {
         this.position=player4.individualPosition++;
         this.points = new double[10];
-        for (int i = 0; i < 10; i++) 
+        for (int i = 0; i < nDimension; i++) 
             this.points[i] = rnd_.nextDouble() * 10 - 5;
         
         stepSize=new double[nDimension];
@@ -102,13 +102,9 @@ class Individual implements Comparable {
 
     public double getFitness() {
         if (!evaluated) {
-            fitness = (double) evaluate(this.points);
+            fitness = evaluate(points);//(double) evaluate(this.points);
         }
         evaluated = true;
-        if(fitness>maxFitness){
-            maxFitness=fitness;
-            //System.out.println("New max fitness found: " + fitness);
-        }
         return fitness;
     }
 
@@ -131,7 +127,9 @@ class Individual implements Comparable {
         double[] res=new double[nDimension];
         for(int i=0;i<nDimension;i++)
                 res[i]=arithmeticCrossoverStep*points[i]+(1-arithmeticCrossoverStep)*parent.points[i];
-        return new Individual(res);
+        Individual ind=new Individual(res);
+        ind.stepSize=stepSize.clone();
+        return ind;
     }
     
     public void mutateFromNormal(double mutateFactor, double clusterScale) {

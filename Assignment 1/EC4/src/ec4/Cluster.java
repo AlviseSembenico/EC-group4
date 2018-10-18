@@ -20,19 +20,18 @@ public class Cluster {
     //history of the centroid during the generations
     public List<double[]> centroidHistory;
     //list of the centroid of the cluster that are not consideret productive
-    public static List<double[]> discartedCentroid;
+    public static List<double[]> discartedCentroid = new LinkedList<double[]>();
     //the number of the generations in which one cluster cannnot be discarted
-    private final int generationBound=5;
+    private final int generationBound=15;
     //the offset the set the limit below that one cluster is considered discarted.
-    private final double discardBound=5;
+    private final double discardBound=3;
     //distance between 2 clusters, below that the behaviour will be similar
-    private final double clusterDistance=8;
+    private final double clusterDistance=1;
     
     public Cluster(){
         components=new LinkedList<Individual>();
         fitnessHistory=new LinkedList<Double>();
         centroidHistory=new LinkedList<double[]>();
-        discartedCentroid=new LinkedList<double[]>();
     }
     
     public Cluster(List<Individual> l){
