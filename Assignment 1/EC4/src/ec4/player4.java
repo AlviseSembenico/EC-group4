@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import org.jfree.ui.RefineryUtilities;
 
 public class player4 implements ContestSubmission {
 
@@ -36,6 +37,7 @@ public class player4 implements ContestSubmission {
     private double ageingFactor = 0.3;
     private final double clusterRadius = 1;
     private final double arithmeticCrossoverStep=0.5;
+    LineChart demo;
     
     /**
      * Initialize the popoulation randomly
@@ -79,6 +81,11 @@ public class player4 implements ContestSubmission {
     }
 
     public player4() {
+        demo = new LineChart("Dynamic Data Demo");
+        demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
+        demo.setVisible(true);
+        
         rnd_ = new Random();
         setParameters();
         Individual.nDimension = F_DIMENSIONS;
@@ -257,6 +264,14 @@ public class player4 implements ContestSubmission {
         return reproduceList(c.components, children, c.getAlphaDynamicStepSize());
     }
 
+    private double getFittest(){
+        double max=0;
+        for(Individual i:population)
+            if(i.getFitness()>max)
+                max=i.getFitness();
+        return max;
+    }
+    
     private List<Individual> reproduceList(List<Individual> l, int children,double clusterScale) {
         if (children == 0 || children > l.size()) 
             children = l.size();
@@ -285,7 +300,7 @@ public class player4 implements ContestSubmission {
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
-            
+            demo.addData(getFittest());
             distanceMatrix();
             individualPosition = 0;
             slideWindow();

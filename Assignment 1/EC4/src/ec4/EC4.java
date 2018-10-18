@@ -5,6 +5,8 @@
  */
 package ec4;
 
+import org.jfree.ui.RefineryUtilities;
+
 /**
  *
  * @author alvis
@@ -19,7 +21,8 @@ public class EC4 {
 //       Individual a=new Individual(new double[]{0,0,0,0,0,0,0,0,0,0});
 //        System.out.println(a.getFitness());
 //        System.out.println(a.computeDistance(a.arithmeticCrossover(a, 0.5)));
+        
         new player4().run();
     }
-    
+
 }
