@@ -232,7 +232,7 @@ public class player4 implements ContestSubmission {
             Iterator<Individual> c2 = population.iterator();
             while (c2.hasNext()) {
                 Individual ch2 = c2.next();
-                matrix[ch1.position][ch2.position] = ch1.distance(ch2);
+                matrix[ch1.position][ch2.position] = ch1.computeDistance(ch2);
             }
 
         }
@@ -292,7 +292,7 @@ public class player4 implements ContestSubmission {
         List<Individual> res = new LinkedList<Individual>();
         for (int i = 0; i < children; i++) {
 
-            List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
+            List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 2, 1);
             Individual child = parents.get(0).arithmeticCrossover(parents.get(1), arithmeticCrossoverStep);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
@@ -302,13 +302,16 @@ public class player4 implements ContestSubmission {
         return res;
     }
 
+    @Override
     public void run() {
         List<Individual> global = new LinkedList<Individual>();
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
+            distanceMatrix();
+            
+            individualPosition = 0;
             slideWindow();
-            int individualPosition = 0;
             clusters.addAll(agglomerativeClustering(global));
                         
             //remove clusters with dimension < 3
@@ -335,7 +338,7 @@ public class player4 implements ContestSubmission {
                 offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize()));
             
             //reproduction of the individuals that do not belog to any cluster
-            offspringCluster.addAll(reproduceList(global, 0, individualPosition));
+            offspringCluster.addAll(reproduceList(global, 0));
 
             if (offspringCluster.size() != populationSize) 
                 offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));

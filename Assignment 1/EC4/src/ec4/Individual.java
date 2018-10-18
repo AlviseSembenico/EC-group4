@@ -32,15 +32,26 @@ class Individual implements Comparable {
         return Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
-    public double distance(Individual ch1) {
+    public double computeDistance(Individual ch1) {
         double res = 0.0;
         for (int i = 0; i < ch1.points.length; i++)
             res += Math.pow(ch1.points[i] - this.points[i], 2);
         return Math.sqrt(res);
     }
     
+    public double distance(Individual ch1) {
+        return player4.distantMatrix[this.position][ch1.position];
+    }
+    
+    public double computeDistance(double [] ch1){
+        double res = 0.0;
+        for (int i = 0; i < ch1.length; i++)
+            res += Math.pow(ch1[i] - this.points[i], 2);
+        return Math.sqrt(res);
+    }
+    
     public double distance(double [] ch1){
-        return distance(new Individual(ch1));
+        return computeDistance(ch1);
     }
     
     public double evaluate(Object c) {
