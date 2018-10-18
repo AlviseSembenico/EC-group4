@@ -127,7 +127,7 @@ class Individual implements Comparable {
             stepSize[i]*=Math.pow(Math.E,adaptiveStep*rnd_.nextGaussian()+coordinateStep*rnd_.nextGaussian());
     }
     
-    public  Individual arithmeticCrossover(Individual parent,double arithmeticCrossoverStep){
+    public Individual arithmeticCrossover(Individual parent,double arithmeticCrossoverStep){
         double[] res=new double[nDimension];
         for(int i=0;i<nDimension;i++)
                 res[i]=arithmeticCrossoverStep*points[i]+(1-arithmeticCrossoverStep)*parent.points[i];

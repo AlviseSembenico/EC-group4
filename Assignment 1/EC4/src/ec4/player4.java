@@ -21,22 +21,20 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_=10000;
+    private int evaluations_limit_= 10000   ;
     // Population size
-    private int populationSize = 100;
+    private int populationSize;
     public static double[][] distantMatrix;
     public static int individualPosition=0;
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
-    private double selectivePressure = 1.8;
     private int tournamentSize = 7;
     private double mutationRate = 0.4;
     private double mutationVariability = 0.8;
-    private int crossoverPoints = 2;
     private boolean ageing = false;
     private int elitismElements = 0;
     private double ageingFactor = 0.3;
-    private final double clusterRadius = 0.5;
+    private final double clusterRadius = 1;
     private final double arithmeticCrossoverStep=0.5;
     
     /**
@@ -59,11 +57,9 @@ public class player4 implements ContestSubmission {
             prop.load(input);
             // get the property value and print it out
             populationSize = Integer.valueOf(prop.getProperty("populationSize"));
-            selectivePressure = Double.valueOf(prop.getProperty("selectivePressure"));
             tournamentSize = Integer.valueOf(prop.getProperty("tournamentSize"));
             mutationRate = Double.valueOf(prop.getProperty("mutationRate"));
             mutationVariability = Double.valueOf(prop.getProperty("mutationVariability"));
-            crossoverPoints = Integer.valueOf(prop.getProperty("crossoverPoints"));
             elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
@@ -84,10 +80,10 @@ public class player4 implements ContestSubmission {
 
     public player4() {
         rnd_ = new Random();
+        setParameters();
         Individual.nDimension = 10;
         Individual.nEval=evaluations_limit_;
         populationInitialization();
-        //setParameters();
     }
 
     @Override
@@ -117,16 +113,6 @@ public class player4 implements ContestSubmission {
         } else {
             // Do sth else
         }
-    }
-
-    /**
-     *
-     * @param position order of arrival of the parent within the tournament
-     * @param u the dimension of the tournament
-     * @return the probability for the parent to be chosen
-     */
-    private double linearRanking(int position, int u) {
-        return ((2 - selectivePressure) / u) + ((2 * position * (selectivePressure - 1)) / (u * (u - 1)));
     }
 
     /**
@@ -201,15 +187,6 @@ public class player4 implements ContestSubmission {
         }
 
         return res;
-    }
-
-    private List<Individual> topIndividual(int n) {
-        List<Individual> top = new LinkedList<Individual>();
-        Collections.sort(population);
-        for (n--; n >= 0; n--) {
-            top.add(population.get(n));
-        }
-        return top;
     }
 
     private void slideWindow() {
@@ -309,7 +286,6 @@ public class player4 implements ContestSubmission {
         List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
             distanceMatrix();
-            
             individualPosition = 0;
             slideWindow();
             clusters.addAll(agglomerativeClustering(global));
@@ -317,26 +293,24 @@ public class player4 implements ContestSubmission {
             //remove clusters with dimension < 3
             for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
                 Cluster c = iterator.next();
-                //purging of the population surplus 
-                c.purge();
+                //purgeing of the population surplus 
                 if (c.components.size() < 3 ) 
                     iterator.remove();
                 else if(c.nonProductive()){
                     //check if the cluster has already analized the area for a while and has not discover good points
                     Cluster.discartedCentroid.add(c.gravityCenter());
-                    System.out.println("add");
                     iterator.remove();
                 }
-                else
+                else{
                     //remove the final components of the cluster from the global population
                     global.removeAll(c.components);
+                }                    
             }
-            
             List<Individual> offspringCluster = new LinkedList<Individual>();
             //breeding within the clusters
             for (Cluster c : clusters) 
                 offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize()));
-            
+
             //reproduction of the individuals that do not belog to any cluster
             offspringCluster.addAll(reproduceList(global, 0));
 
@@ -344,19 +318,23 @@ public class player4 implements ContestSubmission {
                 offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
 
             population = (LinkedList<Individual>) offspringCluster;
-            global = new LinkedList<Individual>();
-            global.addAll(offspringCluster);
-            
+            global = (List<Individual>) population.clone();
             //classification of the offspring, trying to add them to one cluster
-            for (Cluster c : clusters) {
+       
+            for (Iterator<Cluster> iterator = clusters.iterator(); iterator.hasNext();) {
+                Cluster c=iterator.next();
                 List<Individual> newGen = new LinkedList<Individual>();
-                for (Individual i : offspringCluster) 
+                for (Individual i : global) 
                     if (c.contains(i))
                         newGen.add(i);
-                global.removeAll(newGen);
-                c.newGeneration(newGen);
+                if(newGen.isEmpty())
+                    iterator.remove();
+                 
+                else{
+                    c.newGeneration(newGen);
+                    global.removeAll(newGen);
+                }
             }
         }
     }
-
 }

@@ -21,13 +21,12 @@ public class Cluster {
     public List<double[]> centroidHistory;
     //list of the centroid of the cluster that are not consideret productive
     public static List<double[]> discartedCentroid;
-    private boolean newGen=true;
     //the number of the generations in which one cluster cannnot be discarted
-    private final int generationBound=10;
+    private final int generationBound=5;
     //the offset the set the limit below that one cluster is considered discarted.
-    private final double discardBound=3;
+    private final double discardBound=5;
     //distance between 2 clusters, below that the behaviour will be similar
-    private final double clusterDistance=0.5;
+    private final double clusterDistance=8;
     
     public Cluster(){
         components=new LinkedList<Individual>();
@@ -76,7 +75,6 @@ public class Cluster {
             mean+=i.getFitness();
         
         mean/=components.size();
-        fitnessHistory.add(mean);
         return mean;
     }
     
@@ -106,7 +104,8 @@ public class Cluster {
     }
     
     public double getDynamicRadius(){
-        return 1/(2*fitnessMean()+2);
+        //System.out.println()
+        return 1/(fitnessMean()+1);
     }
     
     public int getDynamicPopSize(){
@@ -128,7 +127,6 @@ public class Cluster {
         fitnessHistory.add(fitnessMean());
         centroidHistory.add(gravityCenter());
         this.components=l;
-        newGen=true;
     }
     
     public double[] gravityCenter(){
@@ -137,7 +135,7 @@ public class Cluster {
             double tot=0;
             for(Individual ind:components)
                 tot+=ind.points[i];
-            tot/=Individual.nDimension;
+            tot/=components.size();
             res[i]=tot;
         }
         return res;
@@ -163,7 +161,7 @@ public class Cluster {
                     max=dist;
             }
         return max;
-    }
+    } 
     
     public double maxDistance(Cluster cl){
         if(this==cl)
