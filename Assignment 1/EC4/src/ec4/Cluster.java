@@ -13,14 +13,21 @@ import java.util.List;
  * @author alvis
  */
 public class Cluster {
+    //list of the components that belong to the cluster
     public List<Individual> components;
+    //history of the average fitness during the different generations
     public List<Double> fitnessHistory;
+    //history of the centroid during the generations
     public List<double[]> centroidHistory;
+    //list of the centroid of the cluster that are not consideret productive
     public static List<double[]> discartedCentroid;
     private boolean newGen=true;
-    private int generationBound=10;
-    private double discardBound=3;
-    private double clusterDistance=0.2;
+    //the number of the generations in which one cluster cannnot be discarted
+    private final int generationBound=10;
+    //the offset the set the limit below that one cluster is considered discarted.
+    private final double discardBound=3;
+    //distance between 2 clusters, below that the behaviour will be similar
+    private final double clusterDistance=0.5;
     
     public Cluster(){
         components=new LinkedList<Individual>();
@@ -28,14 +35,20 @@ public class Cluster {
         centroidHistory=new LinkedList<double[]>();
         discartedCentroid=new LinkedList<double[]>();
     }
+    
     public Cluster(List<Individual> l){
         components=l;
     }
+    
     public Cluster(Individual i){
         this();
         components.add(i);
     }
     
+    /***
+     * 
+     * @return true if the cluster is close to an already discarted cluster, false otherwise
+     */
     private boolean closeToDiscarted(){
         for(double[] compare:Cluster.discartedCentroid)
             if(averageDistance(compare)<clusterDistance)
@@ -44,8 +57,11 @@ public class Cluster {
                 
     }
     
+    /***
+     * 
+     * @return true is it not considered productive, true otherwise
+     */
     public boolean nonProductive(){
-        //TO BE IMPLEMENTED
         if(fitnessHistory.size()<generationBound)
             return false;
         if(closeToDiscarted())
@@ -63,6 +79,7 @@ public class Cluster {
         fitnessHistory.add(mean);
         return mean;
     }
+    
     public List<Individual> purgeMax(int n){
         return purge(components.size()-n);
     }
@@ -84,7 +101,6 @@ public class Cluster {
         return res;
     }
     
-
     public double getAlphaDynamicStepSize(){
         return 1/(2*fitnessMean()+1);
     }
@@ -94,7 +110,6 @@ public class Cluster {
     }
     
     public int getDynamicPopSize(){
-        //TO IMPLEMENT
         double x=fitnessMean();
         return (int) (7.0+0.6*x-Math.pow(0.3*x, 2)+Math.pow(0.03*x, 3));
     }

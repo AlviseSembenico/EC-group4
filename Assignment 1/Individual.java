@@ -41,36 +41,6 @@ class Individual implements Comparable {
     public double distance(double [] ch1){
         return distance(new Individual(ch1,-1));
     }
-    
-    public double evaluate(Object c) {
-        //System.out.println(totEval);
-        if (nEval == totEval) {
-            System.out.println("Score:" + maxValue);
-            String.valueOf(null);
-        }
-        if (f == null) {
-            try {
-                f = (org.vu.contest.ContestEvaluation) Class.forName("BentCigarFunction").newInstance();
-
-            } catch (Exception ex) {
-                Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        Object res = f.evaluate(c);
-        if (res == null) {
-            f = null;
-            return evaluate(c);
-        }
-        double result = (double) res;
-        totEval++;
-        if (result > maxValue) {
-            maxValue = result;
-            // System.out.println("new record for fitness " + maxValue + ", evaluation n: " + totEval);
-        }
-        return result;
-
-        // return (double)rnd_.nextDouble()*rnd_.nextInt(8);
-    }
 
     public Individual(double[] points,int position) {
         this(position);
@@ -89,6 +59,7 @@ class Individual implements Comparable {
         for(int i=0;i<nDimension;i++)
             stepSize[i]=1;
     }
+
 
     public double getFitness(){
         if (!evaluated) {

@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,13 +11,26 @@ import java.util.List;
  * @author alvis
  */
 public class Cluster {
+    //list of the components that belong to the cluster
     public List<Individual> components;
+    //history of the average fitness during the different generations
     public List<Double> fitnessHistory;
+    //history of the centroid during the generations
+    public List<double[]> centroidHistory;
+    //list of the centroid of the cluster that are not consideret productive
+    public static List<double[]> discartedCentroid;
     private boolean newGen=true;
+    //the number of the generations in which one cluster cannnot be discarted
+    private final int generationBound=10;
+    
+    private final double discardBound=3;
+    private final double clusterDistance=0.5;
     
     public Cluster(){
         components=new LinkedList<Individual>();
         fitnessHistory=new LinkedList<Double>();
+        centroidHistory=new LinkedList<double[]>();
+        discartedCentroid=new LinkedList<double[]>();
     }
     public Cluster(List<Individual> l){
         components=l;
@@ -26,6 +38,24 @@ public class Cluster {
     public Cluster(Individual i){
         this();
         components.add(i);
+    }
+    
+    private boolean closeToDiscarted(){
+        for(double[] compare:Cluster.discartedCentroid)
+            if(averageDistance(compare)<clusterDistance)
+                return true;
+        return false;
+                
+    }
+    
+    public boolean nonProductive(){
+        //TO BE IMPLEMENTED
+        if(fitnessHistory.size()<generationBound)
+            return false;
+        if(closeToDiscarted())
+            return true;
+        int size=fitnessHistory.size();
+        return fitnessHistory.get(size/3)-fitnessHistory.get(size-1)<discardBound;
     }
     
     public double fitnessMean(){
@@ -68,7 +98,7 @@ public class Cluster {
     }
     
     public int getDynamicPopSize(){
-        //TO IMPLEMENT
+        //return 1;
         double x=fitnessMean();
         return (int) (7.0+0.6*x-Math.pow(0.3*x, 2)+Math.pow(0.03*x, 3));
     }
@@ -84,6 +114,8 @@ public class Cluster {
     }
     
     public void newGeneration(List<Individual> l){
+        fitnessHistory.add(fitnessMean());
+        centroidHistory.add(gravityCenter());
         this.components=l;
         newGen=true;
     }
@@ -135,6 +167,15 @@ public class Cluster {
         if(components.size()+cl.components.size()==0)
             return 0;
         return max;
+    }
+    
+    public double averageDistance(double[] cl){
+        double tot=0;
+        for(Individual i:components)
+            tot+=i.distance(cl);
+        if(components.size()==0)
+            return 0;
+        return tot/(components.size());
     }
     
     public double averageDistance(Cluster cl){

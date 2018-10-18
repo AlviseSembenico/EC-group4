@@ -1,4 +1,3 @@
-
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
 
@@ -20,7 +19,7 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_=100000;
+    private int evaluations_limit_=10000;
     // Population size
     private int populationSize = 100;
     private final int F_DIMENSIONS = 10;
@@ -385,7 +384,7 @@ public class player4 implements ContestSubmission {
         for (int i = 0; i < children; i++) {
 
             List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 3, 1);
-            Individual child = arithmeticCrossover(parents, position++);
+            Individual child = crossover(parents, 2,position++);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
             }
@@ -409,8 +408,14 @@ public class player4 implements ContestSubmission {
                 Cluster c = iterator.next();
                 //purging of the population surplus 
                 c.purge();
-                if (c.components.size() < 3) {
+                if (c.components.size() < 3 ) {
                     //global.addAll(c.components);
+                    iterator.remove();
+                }
+                else if(c.nonProductive()){
+                    //check if the cluster has already analized the area for a while and has not discover good points
+                    Cluster.discartedCentroid.add(c.gravityCenter());
+                    //System.out.println("add");
                     iterator.remove();
                 }
                 else
