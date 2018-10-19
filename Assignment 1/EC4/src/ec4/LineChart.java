@@ -8,12 +8,18 @@ package ec4;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -40,21 +46,22 @@ public class LineChart extends ApplicationFrame implements ActionListener {
      * The most recent value added.
      */
     private double lastValue = 100.0;
-    private int counter=0;
+    private int counter = 0;
+    final JFreeChart chart;
+    final ChartPanel chartPanel; /**
+             * Constructs a new demonstration application.
+             *
+             * @param title the frame title.
+             */
 
-    /**
-     * Constructs a new demonstration application.
-     *
-     * @param title the frame title.
-     */
     public LineChart(final String title) {
-        
+
         super(title);
         this.series = new TimeSeries("Random Data", Millisecond.class);
         final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
-        final JFreeChart chart = createChart(dataset);
+        chart = createChart(dataset);
 
-        final ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel = new ChartPanel(chart);
 
         final JPanel content = new JPanel(new BorderLayout());
         content.add(chartPanel);
@@ -87,6 +94,20 @@ public class LineChart extends ApplicationFrame implements ActionListener {
         axis = plot.getRangeAxis();
         axis.setRange(0.0, 10.0);
         return result;
+    }
+
+    public void saveAsImage(String name) {
+        OutputStream out;
+        try {
+            out = new FileOutputStream(name);
+            ChartUtilities.writeChartAsPNG(out,
+                    chart,
+                    chartPanel.getWidth(),
+                    chartPanel.getHeight());
+            out.flush();
+        } catch (Exception ex) {
+            Logger.getLogger(LineChart.class.getName()).log(Level.SEVERE, null, ex);
+        };
     }
 
     // ****************************************************************************

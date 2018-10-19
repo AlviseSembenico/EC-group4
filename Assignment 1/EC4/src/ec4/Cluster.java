@@ -22,13 +22,13 @@ public class Cluster {
     //list of the centroid of the cluster that are not consideret productive
     public static List<double[]> discartedCentroid = new LinkedList<double[]>();
     //the number of the generations in which one cluster cannnot be discarted
-    private final int generationBound=6;
+    public static int generationBound;
     //the offset the set the limit below that one cluster is considered discarted.
-    private final double discardBound=5;
+    public static double discardBound;
     //distance between 2 clusters, below that the behaviour will be similar
-    private final double clusterDistance=2;
+    public static double clusterDistance;
     //multiplier of the 1/step size
-    private final double alphaStepSize=4;
+    public static double alphaStepSize;
     
     public Cluster(){
         components=new LinkedList<Individual>();

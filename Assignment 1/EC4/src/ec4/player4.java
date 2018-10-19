@@ -23,7 +23,7 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_= 100000;
+    private int evaluations_limit_= 1000000;
     // Population size
     private int populationSize;
     public static double[][] distantMatrix;
@@ -38,7 +38,8 @@ public class player4 implements ContestSubmission {
     private double ageingFactor = 0.3;
     private final double clusterRadius = 1;
     private final double arithmeticCrossoverStep=0.5;
-    LineChart demo;
+    public static LineChart demo;
+    public static String imageName ;
     
     /**
      * Initialize the popoulation randomly
@@ -67,7 +68,11 @@ public class player4 implements ContestSubmission {
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
             evaluations_limit_ = Integer.valueOf(prop.getProperty("nExec"));
-
+            imageName = prop.getProperty("imageName");
+            Cluster.generationBound=Integer.valueOf(prop.getProperty("generationBound"));
+            Cluster.discardBound=Integer.valueOf(prop.getProperty("discardBound"));
+            Cluster.clusterDistance=Double.valueOf(prop.getProperty("clusterDistance"));
+            Cluster.alphaStepSize=Integer.valueOf(prop.getProperty("alphaStepSize"));
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -317,6 +322,7 @@ public class player4 implements ContestSubmission {
         List<Individual> global = new LinkedList<Individual>();
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
+        
         while (true) {
             demo.addData(getFittest());
             distanceMatrix();

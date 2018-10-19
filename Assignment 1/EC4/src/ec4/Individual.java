@@ -58,12 +58,14 @@ class Individual implements Comparable {
         //System.out.println(totEval);
         if (nEval == totEval) {
             System.out.println("Score:" + maxValue);
+            player4.demo.saveAsImage(player4.imageName);
+            System.exit(0);
             String.valueOf(null);
         }
         if (f == null) {
             try {
                 f = (org.vu.contest.ContestEvaluation) Class.forName("BentCigarFunction").newInstance();
-                f = (org.vu.contest.ContestEvaluation) Class.forName("SchaffersEvaluation").newInstance();        
+                
             } catch (Exception ex) {
                 Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -101,9 +103,9 @@ class Individual implements Comparable {
     }
 
     public double getFitness() {
-        if (!evaluated) {
+        if (!evaluated) 
             fitness = evaluate(points);//(double) evaluate(this.points);
-        }
+        
         evaluated = true;
         return fitness;
     }
