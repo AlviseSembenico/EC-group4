@@ -15,7 +15,7 @@ opt = {
     "mutationRate": np.arange(0.3,0.9,0.1),
     "mutationVariability": np.arange(0,1,0.1),
     "crossoverPoints":range(1,6,1),
-    "elitismElements": 0,#range(1,20,1),
+    "elitismElements": 0,#range(1,20,1),    
     "ageing":False,
     "ageingFactor":0.0
 }
@@ -27,8 +27,7 @@ def run(param,counter=0,current={}):
     global topScore
     global topDict
     
-    if counter==len(param):
-        
+    if counter==len(param):  
         file=open(file_name,'w')
         for c in current.keys():
             file.write("{}={}\n".format(c,current[c]))

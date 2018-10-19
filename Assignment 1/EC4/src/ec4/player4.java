@@ -15,6 +15,7 @@ import java.util.stream.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Properties;
 import org.jfree.ui.RefineryUtilities;
 
@@ -130,12 +131,26 @@ public class player4 implements ContestSubmission {
      * @return n integer random number between min and max
      */
     private static int[] random(int n, int min, int max) {
+        if(n>max-min)
+            n=max-min;
+
+        List<Integer> solution = new ArrayList<>();
         int[] res = new int[n];
-        int[] i = new int[]{0};
-        rnd_.ints(n, min, max).forEach(rn -> {
-            res[i[0]++] = rn;
-        });
+        for(int i=min;i<=max;i++)
+            solution.add(i);
+        Collections.shuffle(solution);
+        //solution.subList(0, n-1);
+        for(int i=0;i<n;i++)
+            res[i]=solution.get(i);
         return res;
+        //return solution.toArray(new Integer[0]);
+        //return solution.stream().toArray(Integer[]::new);
+//        int[] res = new int[n];
+//        int[] i = new int[]{0};
+//        rnd_.ints(n, min, max).forEach(rn -> {
+//            res[i[0]++] = rn;
+//        });
+//        return res;
     }
 
     private List<Individual> tournament(LinkedList<Individual> source, int tournamentSize, int winners, int rounds) {
@@ -143,7 +158,7 @@ public class player4 implements ContestSubmission {
         List<Individual> candidates = (List) source.clone();
 
         for (int r = 0; r < rounds; r++) {
-            // select randomly the index of 5 parents
+            // select randomly the index of tS parents
             List<Integer> parents = IntStream.of(random(tournamentSize, 0, candidates.size() - 1)).boxed()
                     .collect(Collectors.toList());
 
@@ -151,25 +166,23 @@ public class player4 implements ContestSubmission {
             Collections.sort(parents);
 
             // add all selected parents to tournament
-            int iteration = 0;
             parents.forEach(p -> {
                 tournament.put(candidates.get(p), 0.0);
             });
 
+            //System.out.println(tournament.keySet().size());
             for (int w = 0; w < winners; w++) {
                 // calculate the total fitness of the tournament
                 double totalFitness = 0;
-                for (Individual candidate : tournament.keySet()) {
+                for (Individual candidate : tournament.keySet())
                     totalFitness += candidate.getFitness();
-                }
+                
                 if (totalFitness == 0) {
-                    for (int c = 0; c < winners * rounds - res.size(); c++) {
+                    for (int c = 0; c <= winners * rounds - res.size(); c++) 
                         res.add(candidates.get(c));
-                    }
+                    return res;
                 }
-
                 // calculate the probability for every parent to be chosen, the sum is 1.0
-                iteration = 0;
                 for (Individual candidate : tournament.keySet()) {
                     tournament.replace(candidate, candidate.getFitness() / totalFitness);
                 }
@@ -177,6 +190,8 @@ public class player4 implements ContestSubmission {
                 double amount = 0.0;
                 // randomize a number between 0 and 1
                 double extract = rnd_.nextDouble();
+                
+                //System.out.println(tournament);
                 for (Individual element : tournament.keySet()) {
                     amount += tournament.get(element);
                     if (extract <= amount) {
@@ -192,7 +207,6 @@ public class player4 implements ContestSubmission {
 
             }
         }
-
         return res;
     }
 
@@ -285,7 +299,11 @@ public class player4 implements ContestSubmission {
         for (int i = 0; i < children; i++) {
 
             List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 2, 1);
-            Individual child = parents.get(0).arithmeticCrossover(parents.get(1), arithmeticCrossoverStep);
+            Individual child =null;
+            
+            if(parents.size()<2)
+                parents = tournament((LinkedList<Individual>) copy, tournamentSize, 2, 1);
+            child = parents.get(0).arithmeticCrossover(parents.get(1), arithmeticCrossoverStep);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
             }
@@ -337,7 +355,7 @@ public class player4 implements ContestSubmission {
             offspringCluster.addAll(reproduceList(global, global.size()-elitismElements));
 
             if (offspringCluster.size() != populationSize) 
-                offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
+                offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size()));
 
             population = (LinkedList<Individual>) offspringCluster;
             global = (List<Individual>) population.clone(); 

@@ -1,5 +1,5 @@
 populationSize=100
-nExec=10000
+nExec=100000
 tournamentSize=7
 mutationRate=0.4
 mutationVariability=0.8

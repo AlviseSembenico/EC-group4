@@ -63,7 +63,7 @@ class Individual implements Comparable {
         if (f == null) {
             try {
                 f = (org.vu.contest.ContestEvaluation) Class.forName("BentCigarFunction").newInstance();
-
+                f = (org.vu.contest.ContestEvaluation) Class.forName("SchaffersEvaluation").newInstance();        
             } catch (Exception ex) {
                 Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -125,8 +125,13 @@ class Individual implements Comparable {
     
     public Individual arithmeticCrossover(Individual parent,double arithmeticCrossoverStep){
         double[] res=new double[nDimension];
-        for(int i=0;i<nDimension;i++)
-                res[i]=arithmeticCrossoverStep*points[i]+(1-arithmeticCrossoverStep)*parent.points[i];
+        for(int i=0;i<nDimension;i++){
+            double neew=arithmeticCrossoverStep*points[i]+(1-arithmeticCrossoverStep)*parent.points[i];
+            
+                if(neew>10 || neew<-10)
+                    System.out.println("cazzo");
+                res[i]=neew;
+        }
         Individual ind=new Individual(res);
         ind.stepSize=stepSize.clone();
         return ind;
@@ -137,7 +142,7 @@ class Individual implements Comparable {
             double coinFlip = rnd_.nextDouble();
             if (coinFlip > mutateFactor) {
                 double generated = rnd_.nextGaussian() * stepSize[i] * clusterScale;
-                while (this.points[i] + generated >= 5 && this.points[i] + generated <= -5) {
+                while (this.points[i] + generated >= 5 || this.points[i] + generated <= -5) {
                     generated = rnd_.nextGaussian() * stepSize[i];
                 }
                 this.points[i] += generated;

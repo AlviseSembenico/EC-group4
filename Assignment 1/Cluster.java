@@ -1,3 +1,4 @@
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,11 +16,13 @@ public class Cluster {
     //list of the centroid of the cluster that are not consideret productive
     public static List<double[]> discartedCentroid = new LinkedList<double[]>();
     //the number of the generations in which one cluster cannnot be discarted
-    private final int generationBound=15;
+    private final int generationBound=6;
     //the offset the set the limit below that one cluster is considered discarted.
-    private final double discardBound=0.5;
+    private final double discardBound=5;
     //distance between 2 clusters, below that the behaviour will be similar
-    private final double clusterDistance=0.5;
+    private final double clusterDistance=2;
+    //multiplier of the 1/step size
+    private final double alphaStepSize=4;
     
     public Cluster(){
         components=new LinkedList<Individual>();
@@ -92,11 +95,10 @@ public class Cluster {
     }
     
     public double getAlphaDynamicStepSize(){
-        return 1/(2*fitnessMean()+1);
+        return 1/(alphaStepSize*fitnessMean()+1);
     }
     
     public double getDynamicRadius(){
-        //System.out.println()
         return 1/(fitnessMean()+1);
     }
     

@@ -1,3 +1,4 @@
+
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
 
@@ -14,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import org.jfree.ui.RefineryUtilities;
 
 public class player4 implements ContestSubmission {
 
@@ -21,7 +23,7 @@ public class player4 implements ContestSubmission {
     public static ContestEvaluation evaluation;
     private int evaluations_limit_= 10000;
     // Population size
-    private int populationSize=100;
+    private int populationSize =100;
     public static double[][] distantMatrix;
     public static int individualPosition=0;
     private final int F_DIMENSIONS = 10;
@@ -30,10 +32,11 @@ public class player4 implements ContestSubmission {
     private double mutationRate = 0.4;
     private double mutationVariability = 0.8;
     private boolean ageing = false;
-    private int elitismElements = 0;
+    private int elitismElements = 10;
     private double ageingFactor = 0.3;
     private final double clusterRadius = 1;
     private final double arithmeticCrossoverStep=0.5;
+    LineChart demo;
     
     /**
      * Initialize the popoulation randomly
@@ -61,7 +64,7 @@ public class player4 implements ContestSubmission {
             elitismElements = Integer.valueOf(prop.getProperty("elitismElements"));
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
-            Individual.nEval = Integer.valueOf(prop.getProperty("nExec"));
+            evaluations_limit_ = Integer.valueOf(prop.getProperty("nExec"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -77,9 +80,13 @@ public class player4 implements ContestSubmission {
     }
 
     public player4() {
+        
+        demo = new LineChart("Dynamic Data Demo");
+        demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
+        demo.setVisible(true);
         rnd_ = new Random();
-        //setParameters();
-        Individual.nDimension = 10;
+        Individual.nDimension = F_DIMENSIONS;
         Individual.nEval=evaluations_limit_;
         populationInitialization();
     }
@@ -255,6 +262,14 @@ public class player4 implements ContestSubmission {
         return reproduceList(c.components, children, c.getAlphaDynamicStepSize());
     }
 
+    private double getFittest(){
+        double max=0;
+        for(Individual i:population)
+            if(i.getFitness()>max)
+                max=i.getFitness();
+        return max;
+    }
+    
     private List<Individual> reproduceList(List<Individual> l, int children,double clusterScale) {
         if (children == 0 || children > l.size()) 
             children = l.size();
@@ -283,7 +298,6 @@ public class player4 implements ContestSubmission {
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
         while (true) {
-            //System.out.println(Cluster.discartedCentroid.size());
             distanceMatrix();
             individualPosition = 0;
             slideWindow();
@@ -309,9 +323,15 @@ public class player4 implements ContestSubmission {
             //breeding within the clusters
             for (Cluster c : clusters) 
                 offspringCluster.addAll(reproduceCluster(c, c.getDynamicPopSize()));
-
+            
+            
             //reproduction of the individuals that do not belog to any cluster
-            offspringCluster.addAll(reproduceList(global, 0));
+            if(elitismElements!=0){
+                Collections.sort(population);
+                offspringCluster.addAll(population.subList(0, elitismElements));
+            }
+            
+            offspringCluster.addAll(reproduceList(global, global.size()-elitismElements));
 
             if (offspringCluster.size() != populationSize) 
                 offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));

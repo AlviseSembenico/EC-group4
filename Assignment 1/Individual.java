@@ -1,3 +1,4 @@
+
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,9 +12,9 @@ class Individual implements Comparable {
     Random rnd_ = new Random();
     public double[] stepSize;
     static ContestEvaluation f = null;
-    static double maxValue = 0;
+    static double maxValue = Double.NEGATIVE_INFINITY;
     static int totEval = 0;
-    static int nEval = 10000;
+    static int nEval ;
     static int nDimension;
     public final double adaptiveStep =1/Math.sqrt(2*nDimension);
     public final double coordinateStep=1/Math.sqrt(2*Math.sqrt(nDimension));
@@ -22,7 +23,7 @@ class Individual implements Comparable {
 
     @Override
     public int compareTo(Object t) {
-        return Double.compare(this.getFitness(), ((Individual) t).getFitness());
+        return -Double.compare(this.getFitness(), ((Individual) t).getFitness());
     }
 
     public double computeDistance(Individual ch1) {
@@ -46,6 +47,7 @@ class Individual implements Comparable {
     public double distance(double [] ch1){
         return computeDistance(ch1);
     }
+    
 
     public Individual(double[] points) {
         this();
@@ -55,7 +57,7 @@ class Individual implements Comparable {
     public Individual() {
         this.position=player4.individualPosition++;
         this.points = new double[10];
-        for (int i = 0; i < 10; i++) 
+        for (int i = 0; i < nDimension; i++) 
             this.points[i] = rnd_.nextDouble() * 10 - 5;
         
         stepSize=new double[nDimension];
@@ -94,7 +96,9 @@ class Individual implements Comparable {
         double[] res=new double[nDimension];
         for(int i=0;i<nDimension;i++)
                 res[i]=arithmeticCrossoverStep*points[i]+(1-arithmeticCrossoverStep)*parent.points[i];
-        return new Individual(res);
+        Individual ind=new Individual(res);
+        ind.stepSize=stepSize.clone();
+        return ind;
     }
     
     public void mutateFromNormal(double mutateFactor, double clusterScale) {
