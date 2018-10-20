@@ -64,9 +64,11 @@ public class LineChart extends ApplicationFrame implements ActionListener {
         chartPanel = new ChartPanel(chart);
 
         final JPanel content = new JPanel(new BorderLayout());
+        //content.setVisible(false);
         content.add(chartPanel);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        chartPanel.setPreferredSize(new java.awt.Dimension(700, 400));
         setContentPane(content);
+        super.toBack();
 
     }
 

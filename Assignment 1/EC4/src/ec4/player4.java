@@ -26,7 +26,7 @@ public class player4 implements ContestSubmission {
     private int evaluations_limit_= 1000000;
     // Population size
     private int populationSize;
-    public static double[][] distantMatrix;
+    public static double[][] distanceMatrix;
     public static int individualPosition=0;
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
@@ -239,7 +239,7 @@ public class player4 implements ContestSubmission {
             }
 
         }
-        distantMatrix=matrix;
+        distanceMatrix=matrix;
         return matrix;
     }
 
@@ -267,11 +267,6 @@ public class player4 implements ContestSubmission {
             c.remove(min2);
             min1.components.addAll(min2.components);
         }
-//        System.out.print(c.size() + " ");
-//        for (Cluster cl : c) {
-//            System.out.print("(" + cl.components.size() + "," + cl.fitnessVariance() + "," + cl.fitnessMean() + ")");
-//        }
-//        System.out.println("");
         return c;
     }
     
@@ -322,7 +317,7 @@ public class player4 implements ContestSubmission {
         List<Individual> global = new LinkedList<Individual>();
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
-        
+    
         while (true) {
             demo.addData(getFittest());
             distanceMatrix();

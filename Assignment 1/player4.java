@@ -14,6 +14,7 @@ import java.util.stream.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Properties;
 import org.jfree.ui.RefineryUtilities;
 
@@ -21,10 +22,10 @@ public class player4 implements ContestSubmission {
 
     public static Random rnd_;
     public static ContestEvaluation evaluation;
-    private int evaluations_limit_= 10000;
+    private int evaluations_limit_= 1000000;
     // Population size
-    private int populationSize =100;
-    public static double[][] distantMatrix;
+    private int populationSize=100;
+    public static double[][] distanceMatrix;
     public static int individualPosition=0;
     private final int F_DIMENSIONS = 10;
     private LinkedList<Individual> population;
@@ -32,11 +33,10 @@ public class player4 implements ContestSubmission {
     private double mutationRate = 0.4;
     private double mutationVariability = 0.8;
     private boolean ageing = false;
-    private int elitismElements = 10;
+    private int elitismElements = 0;
     private double ageingFactor = 0.3;
     private final double clusterRadius = 1;
     private final double arithmeticCrossoverStep=0.5;
-    LineChart demo;
     
     /**
      * Initialize the popoulation randomly
@@ -65,7 +65,10 @@ public class player4 implements ContestSubmission {
             ageing = Boolean.valueOf(prop.getProperty("ageing"));
             ageingFactor = Double.valueOf(prop.getProperty("ageingFactor"));
             evaluations_limit_ = Integer.valueOf(prop.getProperty("nExec"));
-
+            Cluster.generationBound=Integer.valueOf(prop.getProperty("generationBound"));
+            Cluster.discardBound=Integer.valueOf(prop.getProperty("discardBound"));
+            Cluster.clusterDistance=Double.valueOf(prop.getProperty("clusterDistance"));
+            Cluster.alphaStepSize=Integer.valueOf(prop.getProperty("alphaStepSize"));
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -80,12 +83,8 @@ public class player4 implements ContestSubmission {
     }
 
     public player4() {
-        
-        demo = new LineChart("Dynamic Data Demo");
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
         rnd_ = new Random();
+        //setParameters();
         Individual.nDimension = F_DIMENSIONS;
         Individual.nEval=evaluations_limit_;
         populationInitialization();
@@ -128,12 +127,26 @@ public class player4 implements ContestSubmission {
      * @return n integer random number between min and max
      */
     private static int[] random(int n, int min, int max) {
+        if(n>max-min)
+            n=max-min;
+
+        List<Integer> solution = new ArrayList<>();
         int[] res = new int[n];
-        int[] i = new int[]{0};
-        rnd_.ints(n, min, max).forEach(rn -> {
-            res[i[0]++] = rn;
-        });
+        for(int i=min;i<=max;i++)
+            solution.add(i);
+        Collections.shuffle(solution);
+        //solution.subList(0, n-1);
+        for(int i=0;i<n;i++)
+            res[i]=solution.get(i);
         return res;
+        //return solution.toArray(new Integer[0]);
+        //return solution.stream().toArray(Integer[]::new);
+//        int[] res = new int[n];
+//        int[] i = new int[]{0};
+//        rnd_.ints(n, min, max).forEach(rn -> {
+//            res[i[0]++] = rn;
+//        });
+//        return res;
     }
 
     private List<Individual> tournament(LinkedList<Individual> source, int tournamentSize, int winners, int rounds) {
@@ -141,7 +154,7 @@ public class player4 implements ContestSubmission {
         List<Individual> candidates = (List) source.clone();
 
         for (int r = 0; r < rounds; r++) {
-            // select randomly the index of 5 parents
+            // select randomly the index of tS parents
             List<Integer> parents = IntStream.of(random(tournamentSize, 0, candidates.size() - 1)).boxed()
                     .collect(Collectors.toList());
 
@@ -149,25 +162,23 @@ public class player4 implements ContestSubmission {
             Collections.sort(parents);
 
             // add all selected parents to tournament
-            int iteration = 0;
             parents.forEach(p -> {
                 tournament.put(candidates.get(p), 0.0);
             });
 
+            //System.out.println(tournament.keySet().size());
             for (int w = 0; w < winners; w++) {
                 // calculate the total fitness of the tournament
                 double totalFitness = 0;
-                for (Individual candidate : tournament.keySet()) {
+                for (Individual candidate : tournament.keySet())
                     totalFitness += candidate.getFitness();
-                }
+                
                 if (totalFitness == 0) {
-                    for (int c = 0; c < winners * rounds - res.size(); c++) {
+                    for (int c = 0; c <= winners * rounds - res.size(); c++) 
                         res.add(candidates.get(c));
-                    }
+                    return res;
                 }
-
                 // calculate the probability for every parent to be chosen, the sum is 1.0
-                iteration = 0;
                 for (Individual candidate : tournament.keySet()) {
                     tournament.replace(candidate, candidate.getFitness() / totalFitness);
                 }
@@ -175,6 +186,8 @@ public class player4 implements ContestSubmission {
                 double amount = 0.0;
                 // randomize a number between 0 and 1
                 double extract = rnd_.nextDouble();
+                
+                //System.out.println(tournament);
                 for (Individual element : tournament.keySet()) {
                     amount += tournament.get(element);
                     if (extract <= amount) {
@@ -190,7 +203,6 @@ public class player4 implements ContestSubmission {
 
             }
         }
-
         return res;
     }
 
@@ -218,7 +230,7 @@ public class player4 implements ContestSubmission {
             }
 
         }
-        distantMatrix=matrix;
+        distanceMatrix=matrix;
         return matrix;
     }
 
@@ -246,11 +258,6 @@ public class player4 implements ContestSubmission {
             c.remove(min2);
             min1.components.addAll(min2.components);
         }
-//        System.out.print(c.size() + " ");
-//        for (Cluster cl : c) {
-//            System.out.print("(" + cl.components.size() + "," + cl.fitnessVariance() + "," + cl.fitnessMean() + ")");
-//        }
-//        System.out.println("");
         return c;
     }
     
@@ -283,7 +290,11 @@ public class player4 implements ContestSubmission {
         for (int i = 0; i < children; i++) {
 
             List<Individual> parents = tournament((LinkedList<Individual>) copy, tournamentSize, 2, 1);
-            Individual child = parents.get(0).arithmeticCrossover(parents.get(1), arithmeticCrossoverStep);
+            Individual child =null;
+            
+            if(parents.size()<2)
+                parents = tournament((LinkedList<Individual>) copy, tournamentSize, 2, 1);
+            child = parents.get(0).arithmeticCrossover(parents.get(1), arithmeticCrossoverStep);
             if (rnd_.nextDouble() < mutationRate) {
                 child.mutateFromNormal(mutationVariability,clusterScale);
             }
@@ -297,6 +308,7 @@ public class player4 implements ContestSubmission {
         List<Individual> global = new LinkedList<Individual>();
         global.addAll(population);
         List<Cluster> clusters = new LinkedList<Cluster>();
+    
         while (true) {
             distanceMatrix();
             individualPosition = 0;
@@ -334,7 +346,7 @@ public class player4 implements ContestSubmission {
             offspringCluster.addAll(reproduceList(global, global.size()-elitismElements));
 
             if (offspringCluster.size() != populationSize) 
-                offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size(), individualPosition));
+                offspringCluster.addAll(reproduceList(population, populationSize - offspringCluster.size()));
 
             population = (LinkedList<Individual>) offspringCluster;
             global = (List<Individual>) population.clone(); 

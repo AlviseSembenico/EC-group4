@@ -1,0 +1,14 @@
+populationSize=100
+nExec=1000000
+selectivePressure=1.8
+tournamentSize=7
+mutationRate=0.4
+mutationVariability=0.8
+ageing=False
+ageingFactor=0.0
+generationBound=1
+discardBound=1
+clusterDistance=0.0
+alphaStepSize=4
+elitismElements=5
+imageName=33
